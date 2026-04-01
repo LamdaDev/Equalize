@@ -19,9 +19,11 @@ import { ROOMMATES, EXPENSES } from "./data/mockData";
 import { Roommate, Expense, Category } from "./types";
 import { Logo } from "./components/Logo";
 import LogInAuth from "./components/LogInAuth";
+import SignUpAuth from "./components/SignUpAuth";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "history" | "messages"
   >("dashboard");
@@ -62,7 +64,39 @@ export default function App() {
   };
 
   if (!isLoggedIn) {
-    return <LogInAuth onLogin={() => setIsLoggedIn(true)} />;
+    return (
+      <AnimatePresence mode="wait">
+        {authMode === "login" ? (
+          <motion.div
+            key="login"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-screen"
+          >
+            <LogInAuth 
+              onLogin={() => setIsLoggedIn(true)} 
+              onSignUp={() => setAuthMode("signup")}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="signup"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-screen"
+          >
+            <SignUpAuth 
+              onSignUpSuccess={() => setAuthMode("login")}
+              onBackToLogin={() => setAuthMode("login")}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
   }
 
   return (

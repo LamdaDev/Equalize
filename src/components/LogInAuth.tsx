@@ -4,9 +4,10 @@ import { Logo } from './Logo';
 
 interface LogInAuthProps {
   onLogin: () => void;
+  onSignUp: () => void;
 }
 
-export default function LogInAuth({ onLogin }: LogInAuthProps) {
+export default function LogInAuth({ onLogin, onSignUp }: LogInAuthProps) {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white font-sans flex flex-col items-center justify-center px-6 selection:bg-orange-500/30">
       <motion.div 
@@ -61,6 +62,7 @@ export default function LogInAuth({ onLogin }: LogInAuthProps) {
             </button>
             <button 
               type="button"
+              onClick={onSignUp}
               className="w-full bg-white/5 text-white/60 font-bold py-5 rounded-2xl hover:bg-white/10 transition-all border border-white/5"
             >
               Create an account
