@@ -21,7 +21,7 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans flex flex-col items-center justify-center px-6 selection:bg-orange-500/30 overflow-hidden">
+    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans flex flex-col items-center justify-center px-6 selection:bg-indigo-500/30 overflow-hidden">
       <AnimatePresence mode="wait">
         {!isSuccess ? (
           <motion.div 
@@ -47,12 +47,12 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">Full Name</label>
                 <div className="relative group">
-                  <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-orange-500 transition-colors" />
+                  <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
                   <input 
                     type="text" 
                     placeholder="John Doe"
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
                   />
                 </div>
               </div>
@@ -60,12 +60,12 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">Email Address</label>
                 <div className="relative group">
-                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-orange-500 transition-colors" />
+                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
                   <input 
                     type="email" 
                     placeholder="name@example.com"
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
                   />
                 </div>
               </div>
@@ -73,12 +73,12 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">Password</label>
                 <div className="relative group">
-                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-orange-500 transition-colors" />
+                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
                   <input 
                     type="password" 
                     placeholder="••••••••"
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
                   />
                 </div>
               </div>
@@ -86,7 +86,7 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
               <div className="pt-4 space-y-4">
                 <button 
                   type="submit"
-                  className="w-full bg-orange-500 text-black font-bold py-5 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-400 transition-all shadow-[0_10px_30px_rgba(249,115,22,0.2)] group"
+                  className="w-full bg-indigo-500 text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-2 hover:bg-indigo-400 transition-all shadow-[0_10px_30px_rgba(99,102,241,0.2)] group"
                 >
                   Create Account
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -118,9 +118,9 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
-                className="w-24 h-24 bg-orange-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(249,115,22,0.4)]"
+                className="w-24 h-24 bg-indigo-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(99,102,241,0.4)]"
               >
-                <CheckCircle2 className="w-12 h-12 text-black" />
+                <CheckCircle2 className="w-12 h-12 text-white" />
               </motion.div>
               <motion.div 
                 animate={{ 
@@ -132,7 +132,7 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="absolute inset-0 bg-orange-500 rounded-full -z-10"
+                className="absolute inset-0 bg-indigo-500 rounded-full -z-10"
               />
             </div>
             
@@ -144,10 +144,10 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
             </div>
 
             <div className="pt-4">
-              <div className="flex items-center gap-3 text-orange-500/60 font-bold text-xs uppercase tracking-widest">
-                <span className="w-8 h-[1px] bg-orange-500/20" />
+              <div className="flex items-center gap-3 text-indigo-500/60 font-bold text-xs uppercase tracking-widest">
+                <span className="w-8 h-[1px] bg-indigo-500/20" />
                 Redirecting to Login
-                <span className="w-8 h-[1px] bg-orange-500/20" />
+                <span className="w-8 h-[1px] bg-indigo-500/20" />
               </div>
             </div>
           </motion.div>

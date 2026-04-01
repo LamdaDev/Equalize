@@ -100,7 +100,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-orange-500/30 pb-32">
+    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-indigo-500/30 pb-32">
       {/* Top Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/80 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -114,7 +114,7 @@ export default function App() {
           >
             {showConditionB ? "Baseline Mode" : "Fairness Mode"}
           </button>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-xs font-bold text-black">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-xs font-bold text-white">
             CC
           </div>
         </div>
@@ -211,9 +211,9 @@ export default function App() {
                                   delay: idx * 0.1,
                                 }}
                                 className={cn(
-                                  "h-full rounded-full shadow-[0_0_15px_rgba(249,115,22,0.3)]",
+                                  "h-full rounded-full shadow-[0_0_15px_rgba(99,102,241,0.3)]",
                                   idx === 0
-                                    ? "bg-orange-500"
+                                    ? "bg-indigo-500"
                                     : "bg-white/20 shadow-none",
                                 )}
                               />
@@ -223,11 +223,11 @@ export default function App() {
                       </div>
                       <div className="mt-10 pt-8 border-t border-white/5">
                         <div className="flex gap-4 items-start">
-                          <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                            <Zap className="w-4 h-4 text-orange-500" />
+                          <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+                            <Zap className="w-4 h-4 text-indigo-500" />
                           </div>
                           <p className="text-sm text-white/50 leading-relaxed">
-                            <span className="text-orange-400 font-bold italic mr-1 tracking-tight">
+                            <span className="text-indigo-400 font-bold italic mr-1 tracking-tight">
                               Fairness Insight:
                             </span>
                             You've contributed{" "}
@@ -252,7 +252,7 @@ export default function App() {
                   </h2>
                   <button
                     onClick={() => setShowPaymentModal(true)}
-                    className="text-[12px] font-bold uppercase tracking-[0.2em] text-orange-500 hover:text-orange-400 transition-colors"
+                    className="text-[12px] font-bold uppercase tracking-[0.2em] text-indigo-500 hover:text-indigo-400 transition-colors"
                   >
                     log payment
                   </button>
@@ -307,7 +307,7 @@ export default function App() {
                   </h2>
                   <button
                     onClick={() => setShowExpenseModal(true)}
-                    className="text-[12px] font-bold uppercase tracking-[0.2em] text-orange-500 hover:text-orange-400 transition-colors"
+                    className="text-[12px] font-bold uppercase tracking-[0.2em] text-indigo-500 hover:text-indigo-400 transition-colors"
                   >
                     add expense
                   </button>
@@ -496,8 +496,8 @@ export default function App() {
                       </div>
                     </div>
                     <div className="flex gap-4 items-start">
-                      <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                        <Send className="w-5 h-5 text-orange-500" />
+                      <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+                        <Send className="w-5 h-5 text-indigo-500" />
                       </div>
                       <div>
                         <p className="text-sm font-bold">
@@ -524,7 +524,7 @@ export default function App() {
             className={cn(
               "p-4 rounded-full transition-all duration-500 relative",
               activeTab === "dashboard"
-                ? "bg-orange-500 text-black shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                ? "bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.4)]"
                 : "text-white/30 hover:text-white",
             )}
           >
@@ -532,7 +532,7 @@ export default function App() {
             {activeTab === "dashboard" && (
               <motion.div
                 layoutId="nav-glow"
-                className="absolute inset-0 rounded-full bg-orange-500 blur-md opacity-20 -z-10"
+                className="absolute inset-0 rounded-full bg-indigo-500 blur-md opacity-20 -z-10"
               />
             )}
           </button>
@@ -541,7 +541,7 @@ export default function App() {
             className={cn(
               "p-4 rounded-full transition-all duration-500 relative",
               activeTab === "history"
-                ? "bg-orange-500 text-black shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                ? "bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.4)]"
                 : "text-white/30 hover:text-white",
             )}
           >
@@ -549,7 +549,7 @@ export default function App() {
             {activeTab === "history" && (
               <motion.div
                 layoutId="nav-glow"
-                className="absolute inset-0 rounded-full bg-orange-500 blur-md opacity-20 -z-10"
+                className="absolute inset-0 rounded-full bg-indigo-500 blur-md opacity-20 -z-10"
               />
             )}
           </button>
@@ -558,7 +558,7 @@ export default function App() {
             className={cn(
               "p-4 rounded-full transition-all duration-500 relative",
               activeTab === "messages"
-                ? "bg-orange-500 text-black shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                ? "bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.4)]"
                 : "text-white/30 hover:text-white",
             )}
           >
@@ -566,7 +566,7 @@ export default function App() {
             {activeTab === "messages" && (
               <motion.div
                 layoutId="nav-glow"
-                className="absolute inset-0 rounded-full bg-orange-500 blur-md opacity-20 -z-10"
+                className="absolute inset-0 rounded-full bg-indigo-500 blur-md opacity-20 -z-10"
               />
             )}
           </button>
@@ -576,9 +576,9 @@ export default function App() {
       {/* Floating Action Button */}
       <button
         onClick={() => setShowExpenseModal(true)}
-        className="fixed bottom-10 right-10 w-16 h-16 bg-orange-500 rounded-[2rem] flex items-center justify-center shadow-[0_15px_30px_rgba(249,115,22,0.3)] hover:scale-110 active:scale-95 transition-all z-40 group"
+        className="fixed bottom-10 right-10 w-16 h-16 bg-indigo-500 rounded-[2rem] flex items-center justify-center shadow-[0_15px_30px_rgba(99,102,241,0.3)] hover:scale-110 active:scale-95 transition-all z-40 group"
       >
-        <Plus className="w-9 h-9 text-black group-hover:rotate-90 transition-transform duration-500" />
+        <Plus className="w-9 h-9 text-white group-hover:rotate-90 transition-transform duration-500" />
       </button>
 
       {/* Expense Modal */}
@@ -631,7 +631,7 @@ export default function App() {
                     <input
                       type="text"
                       placeholder="e.g. Grocery run"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
@@ -646,7 +646,7 @@ export default function App() {
                         <input
                           type="number"
                           placeholder="0.00"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
                         />
                       </div>
                     </div>
@@ -654,7 +654,7 @@ export default function App() {
                       <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
                         Category
                       </label>
-                      <select className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none">
+                      <select className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none">
                         <option value="Groceries">Groceries</option>
                         <option value="Utilities">Utilities</option>
                         <option value="Household">Household</option>
@@ -681,7 +681,7 @@ export default function App() {
                           <input
                             type="checkbox"
                             defaultChecked
-                            className="w-6 h-6 rounded-lg border-white/10 bg-transparent text-orange-500 focus:ring-orange-500 focus:ring-offset-0"
+                            className="w-6 h-6 rounded-lg border-white/10 bg-transparent text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
                           />
                         </label>
                       ))}
@@ -697,7 +697,7 @@ export default function App() {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-orange-500 text-black hover:bg-orange-400 transition-all shadow-[0_10px_20px_rgba(249,115,22,0.2)]"
+                      className="flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-indigo-500 text-white hover:bg-indigo-400 transition-all shadow-[0_10px_20px_rgba(99,102,241,0.2)]"
                     >
                       Add expense
                     </button>
@@ -757,7 +757,7 @@ export default function App() {
                       <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
                         From*
                       </label>
-                      <select className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all text-lg font-medium appearance-none">
+                      <select className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium appearance-none">
                         {roommates.map((r) => (
                           <option key={r.id}>{r.name}</option>
                         ))}
@@ -767,7 +767,7 @@ export default function App() {
                       <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
                         To*
                       </label>
-                      <select className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all text-lg font-medium appearance-none">
+                      <select className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium appearance-none">
                         {roommates.map((r) => (
                           <option key={r.id}>{r.name}</option>
                         ))}
@@ -785,7 +785,7 @@ export default function App() {
                       <input
                         type="number"
                         placeholder="0.00"
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
                       />
                     </div>
                   </div>
@@ -795,7 +795,7 @@ export default function App() {
                     </label>
                     <textarea
                       placeholder="Add a note..."
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all text-lg font-medium h-32 resize-none placeholder:text-white/10"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium h-32 resize-none placeholder:text-white/10"
                     />
                   </div>
                   <div className="flex gap-4 pt-6">
@@ -808,7 +808,7 @@ export default function App() {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-orange-500 text-black hover:bg-orange-400 transition-all shadow-[0_10px_20px_rgba(249,115,22,0.2)]"
+                      className="flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-indigo-500 text-white hover:bg-indigo-400 transition-all shadow-[0_10px_20px_rgba(99,102,241,0.2)]"
                     >
                       Confirm
                     </button>
