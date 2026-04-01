@@ -29,7 +29,7 @@ export default function App() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [roommates] = useState<Roommate[]>(ROOMMATES);
-  const [expenses] = useState<Expense[]>(EXPENSES);
+  const [expenses, setExpense] = useState<Expense[]>(EXPENSES);
 
   const totalOwed = roommates.reduce(
     (acc, r) => (r.id !== "1" && r.balance > 0 ? acc + r.balance : acc),
@@ -285,7 +285,7 @@ export default function App() {
                       className="bg-[#151515] border border-white/5 p-5 rounded-3xl flex items-center justify-between group hover:border-white/10 transition-all"
                     >
                       <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 border border-white/5 group-hover:text-white transition-colors">
+                        <div className="w-12 h-12 rounded-2xl bg-black/5 flex items-center justify-center text-white/40 border border-white/5 group-hover:text-white transition-colors">
                           {getCategoryIcon(e.category)}
                         </div>
                         <div>
@@ -620,11 +620,11 @@ export default function App() {
                       <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
                         Category
                       </label>
-                      <select className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-white/[0.08] transition-all text-lg font-medium appearance-none">
-                        <option>Groceries</option>
-                        <option>Utilities</option>
-                        <option>Household</option>
-                        <option>Other</option>
+                      <select className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-orange-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none">
+                        <option value="Groceries">Groceries</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Household">Household</option>
+                        <option value="Other">Other</option>
                       </select>
                     </div>
                   </div>
