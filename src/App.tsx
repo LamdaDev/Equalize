@@ -38,8 +38,42 @@ export default function App() {
   const [roommates] = useState<Roommate[]>(ROOMMATES);
   const [expenses, setExpenses] = useState<Expense[]>(EXPENSES);
   const [payments, setPayments] = useState<Payment[]>(PAYMENTS);
+  const [selectedSplitWith, setSelectedSplitWith] = useState<string[]>(ROOMMATES.map(r => r.id));
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [selectedRoommateForRequest, setSelectedRoommateForRequest] = useState<Roommate | null>(null);
+  const [customRequestMessage, setCustomRequestMessage] = useState("");
+  const [paymentFrom, setPaymentFrom] = useState("1");
+  const [paymentTo, setPaymentTo] = useState("2");
+  const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
+  const [recentActivities, setRecentActivities] = useState<{
+    id: string;
+    type: "request" | "settlement";
+    from: string;
+    to: string;
+    message: string;
+    date: string;
+  }[]>([
+    {
+      id: "1",
+      type: "settlement",
+      from: "2",
+      to: "1",
+      message: "Thanks for the groceries!",
+      date: new Date(Date.now() - 7200000).toISOString(),
+    },
+    {
+      id: "2",
+      type: "request",
+      from: "1",
+      to: "3",
+      message: "Settling up utilities...",
+      date: new Date(Date.now() - 86400000).toISOString(),
+    },
+  ]);
 
   // Dynamic calculations
+  const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  
   const roommatesWithStats = roommates.map((r) => {
     let contributionTotal = 0;
     let bilateralBalance = 0; // How much this roommate owes "You" (positive) or "You" owe them (negative)
@@ -84,6 +118,7 @@ export default function App() {
   const totalOwedToYou = roommatesWithStats.reduce((acc, r) => r.id !== "1" && r.balance > 0 ? acc + r.balance : acc, 0);
   const totalYouOwe = roommatesWithStats.reduce((acc, r) => r.id !== "1" && r.balance < 0 ? acc + Math.abs(r.balance) : acc, 0);
   const totalSpentMonth = expenses.reduce((acc, e) => acc + e.amount, 0);
+  const averageContribution = totalSpentMonth / roommates.length;
 
   const contributionData = roommatesWithStats.map((r) => ({
     name: r.name === "You" ? "You" : r.name,
@@ -92,7 +127,88 @@ export default function App() {
     percentage: totalSpentMonth > 0 
       ? Math.round((r.contributionTotal / totalSpentMonth) * 100)
       : 0,
+    diffFromAvg: r.contributionTotal - averageContribution,
+    percentDiff: averageContribution > 0 
+      ? Math.round(((r.contributionTotal - averageContribution) / averageContribution) * 100)
+      : 0,
   }));
+
+  const getFairnessInsight = () => {
+    if (totalSpentMonth === 0) return "No expenses logged yet this month.";
+
+    const you = contributionData.find(d => d.name === "You");
+    
+    // Find who is most behind and most ahead
+    const mostBehind = [...contributionData].sort((a, b) => a.percentDiff - b.percentDiff)[0];
+    const mostAhead = [...contributionData].sort((a, b) => b.percentDiff - a.percentDiff)[0];
+
+    if (you && you.percentDiff > 10) {
+      return (
+        <>
+          You've contributed <span className="text-white font-bold">{you.percentage}%</span> of costs this month. 
+          {mostBehind.name !== "You" ? (
+            <> {mostBehind.name} is currently <span className="text-white font-bold">{Math.abs(mostBehind.percentDiff)}%</span> below the average contribution. Consider a settlement to rebalance.</>
+          ) : (
+            <> You are well ahead of the average!</>
+          )}
+        </>
+      );
+    }
+
+    if (you && you.percentDiff < -10) {
+      return (
+        <>
+          You're currently <span className="text-white font-bold">{Math.abs(you.percentDiff)}%</span> below the average contribution. 
+          {mostAhead.name !== "You" ? (
+            <> {mostAhead.name} has covered <span className="text-white font-bold">{mostAhead.percentage}%</span> of costs. A quick payment would help even things out.</>
+          ) : (
+            <> Time to pitch in for the next few household runs!</>
+          )}
+        </>
+      );
+    }
+
+    // If "You" are balanced, check if others are not
+    if (mostBehind.percentDiff < -15) {
+      return (
+        <>
+          Your contributions are balanced, but <span className="text-white font-bold">{mostBehind.name}</span> is currently <span className="text-white font-bold">{Math.abs(mostBehind.percentDiff)}%</span> behind the average. A friendly reminder might help.
+        </>
+      );
+    }
+
+    if (mostAhead.percentDiff > 15) {
+      return (
+        <>
+          Everything looks fair for you, but <span className="text-white font-bold">{mostAhead.name}</span> has contributed <span className="text-white font-bold">{mostAhead.percentage}%</span> of costs. They've been doing the heavy lifting lately!
+        </>
+      );
+    }
+
+    return "Contributions are looking balanced this month! Everyone is within a fair range of the average.";
+  };
+
+  const addNotification = (message: string) => {
+    const id = Date.now().toString();
+    setNotifications(prev => [...prev, { id, message }]);
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 4000);
+  };
+
+  const handleSendRequest = (roommate: Roommate, template: string) => {
+    const newActivity = {
+      id: Date.now().toString(),
+      type: "request" as const,
+      from: "1",
+      to: roommate.id,
+      message: template,
+      date: new Date().toISOString(),
+    };
+    setRecentActivities([newActivity, ...recentActivities]);
+    addNotification(`Request sent to ${roommate.name}`);
+    setShowRequestModal(false);
+  };
 
   const getCategoryIcon = (category: Category) => {
     switch (category) {
@@ -165,6 +281,47 @@ export default function App() {
           </div>
         </div>
       </nav>
+
+      {/* Notifications */}
+      <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-3 items-center pointer-events-none">
+        <AnimatePresence>
+          {notifications.map((n) => (
+            <motion.div
+              key={n.id}
+              initial={{ opacity: 0, y: -20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+              className="bg-white text-black px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 pointer-events-auto"
+            >
+              <div className="relative w-5 h-5">
+                <svg className="w-full h-full -rotate-90">
+                  <circle
+                    cx="10"
+                    cy="10"
+                    r="8"
+                    fill="none"
+                    stroke="#eee"
+                    strokeWidth="2"
+                  />
+                  <motion.circle
+                    cx="10"
+                    cy="10"
+                    r="8"
+                    fill="none"
+                    stroke="#6366f1"
+                    strokeWidth="2"
+                    strokeDasharray="50.26"
+                    initial={{ strokeDashoffset: 0 }}
+                    animate={{ strokeDashoffset: 50.26 }}
+                    transition={{ duration: 4, ease: "linear" }}
+                  />
+                </svg>
+              </div>
+              <span className="text-sm font-bold tracking-tight">{n.message}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
 
       <main className="pt-24 px-6 max-w-2xl mx-auto">
         <AnimatePresence mode="wait">
@@ -279,12 +436,7 @@ export default function App() {
                             <span className="text-indigo-400 font-bold italic mr-1 tracking-tight">
                               Fairness Insight:
                             </span>
-                            You've contributed{" "}
-                            <span className="text-white font-bold">53%</span> of
-                            costs this month. Sofia is currently{" "}
-                            <span className="text-white font-bold">27%</span>{" "}
-                            below the average contribution. Consider a
-                            settlement to rebalance.
+                            {getFairnessInsight()}
                           </p>
                         </div>
                       </div>
@@ -339,7 +491,17 @@ export default function App() {
                             {r.balance > 0 ? "+" : "-"}$
                             {Math.abs(r.balance).toFixed(2)}
                           </span>
-                          <button className="w-[100px] flex items-center justify-center bg-white/5 hover:bg-white/10 text-[12px] font-bold uppercase tracking-[0.15em] px-5 py-2.5 rounded-xl transition-all active:scale-95">
+                          <button 
+                            onClick={() => {
+                              if (r.balance > 0) {
+                                setSelectedRoommateForRequest(r);
+                                setShowRequestModal(true);
+                              } else {
+                                setShowPaymentModal(true);
+                              }
+                            }}
+                            className="w-[100px] flex items-center justify-center bg-white/5 hover:bg-white/10 text-[12px] font-bold uppercase tracking-[0.15em] px-5 py-2.5 rounded-xl transition-all active:scale-95"
+                          >
                             {r.balance > 0 ? "request" : "pay"}
                           </button>
                         </div>
@@ -362,7 +524,7 @@ export default function App() {
                   </button>
                 </div>
                 <div className="space-y-3">
-                  {expenses.map((e) => (
+                  {sortedExpenses.map((e) => (
                     <div
                       key={e.id}
                       className="bg-[#151515] border border-white/5 p-5 rounded-3xl flex items-center justify-between group hover:border-white/10 transition-all"
@@ -410,7 +572,7 @@ export default function App() {
             >
               <header className="mb-8">
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
-                  Expense History
+                  Activity History
                 </h1>
                 <p className="text-white/40 text-sm font-medium">
                   All shared costs and settlements
@@ -418,71 +580,59 @@ export default function App() {
               </header>
 
               <div className="space-y-6">
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-white/20 px-1">
-                    This Week
-                  </h3>
-                  {expenses.slice(0, 2).map((e) => (
-                    <div
-                      key={e.id}
-                      className="bg-[#151515] border border-white/5 p-5 rounded-3xl flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 border border-white/5">
-                          {getCategoryIcon(e.category)}
-                        </div>
-                        <div>
-                          <p className="font-bold tracking-tight">
-                            {e.description}
-                          </p>
-                          <p className="text-[12px] font-bold uppercase tracking-widest text-white/30">
-                            {new Date(e.date).toLocaleDateString("en-US", {
-                              weekday: "long",
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </p>
-                        </div>
+                {[
+                  ...expenses.map(e => ({ ...e, activityType: 'expense' as const })),
+                  ...payments.map(p => ({ ...p, activityType: 'payment' as const }))
+                ]
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-[#151515] border border-white/5 p-5 rounded-3xl flex items-center justify-between group hover:border-white/10 transition-all"
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className={cn(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center border border-white/5",
+                        item.activityType === 'expense' ? "bg-white/5 text-white/40" : "bg-emerald-500/10 text-emerald-400"
+                      )}>
+                        {item.activityType === 'expense' ? (
+                          getCategoryIcon((item as Expense).category)
+                        ) : (
+                          <CheckCircle2 className="w-5 h-5" />
+                        )}
                       </div>
-                      <p className="font-bold text-lg tracking-tight">
-                        ${e.amount.toFixed(2)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-white/20 px-1">
-                    Last Week
-                  </h3>
-                  {expenses.slice(2).map((e) => (
-                    <div
-                      key={e.id}
-                      className="bg-[#151515] border border-white/5 p-5 rounded-3xl flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 border border-white/5">
-                          {getCategoryIcon(e.category)}
-                        </div>
-                        <div>
-                          <p className="font-bold tracking-tight">
-                            {e.description}
-                          </p>
-                          <p className="text-[12px] font-bold uppercase tracking-widest text-white/30">
-                            {new Date(e.date).toLocaleDateString("en-US", {
-                              weekday: "long",
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </p>
-                        </div>
+                      <div>
+                        <p className="font-bold tracking-tight">
+                          {item.activityType === 'expense' 
+                            ? (item as Expense).description 
+                            : `Payment from ${roommates.find(r => r.id === (item as Payment).from)?.name} to ${roommates.find(r => r.id === (item as Payment).to)?.name}`
+                          }
+                        </p>
+                        <p className="text-[12px] font-bold uppercase tracking-widest text-white/30">
+                          {new Date(item.date).toLocaleDateString("en-US", {
+                            weekday: "long",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                          {item.activityType === 'payment' && (item as Payment).note && ` • ${(item as Payment).note}`}
+                        </p>
                       </div>
-                      <p className="font-bold text-lg tracking-tight">
-                        ${e.amount.toFixed(2)}
-                      </p>
                     </div>
-                  ))}
-                </div>
+                    <div className="text-right">
+                      <p className={cn(
+                        "font-bold text-lg tracking-tight",
+                        item.activityType === 'payment' && "text-emerald-400"
+                      )}>
+                        ${item.amount.toFixed(2)}
+                      </p>
+                      {item.activityType === 'expense' && (
+                        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/20">
+                          split {(item as Expense).splitWith.length} ways
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}
@@ -533,30 +683,31 @@ export default function App() {
                     Recent Activity
                   </h3>
                   <div className="space-y-4">
-                    <div className="flex gap-4 items-start">
-                      <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    {recentActivities.map((activity) => (
+                      <div key={activity.id} className="flex gap-4 items-start">
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+                          activity.type === "settlement" ? "bg-emerald-500/10" : "bg-indigo-500/10"
+                        )}>
+                          {activity.type === "settlement" ? (
+                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                          ) : (
+                            <Send className="w-5 h-5 text-indigo-500" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold">
+                            {activity.type === "settlement" 
+                              ? `${roommates.find(r => r.id === activity.from)?.name} settled up`
+                              : `You sent a reminder to ${roommates.find(r => r.id === activity.to)?.name}`
+                            }
+                          </p>
+                          <p className="text-xs text-white/40 mt-1">
+                            "{activity.message}" • {new Date(activity.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold">Sofia C. settled up</p>
-                        <p className="text-xs text-white/40 mt-1">
-                          "Thanks for the groceries!" • 2 hours ago
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4 items-start">
-                      <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
-                        <Send className="w-5 h-5 text-indigo-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold">
-                          You sent a reminder to Lauren S.
-                        </p>
-                        <p className="text-xs text-white/40 mt-1">
-                          "Settling up utilities..." • Yesterday
-                        </p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -791,21 +942,23 @@ export default function App() {
                     const description = formData.get("description") as string;
                     const amount = parseFloat(formData.get("amount") as string);
                     const category = formData.get("category") as Category;
+                    const paidBy = formData.get("paidBy") as string;
                     
-                    if (!description || isNaN(amount)) return;
+                    if (!description || isNaN(amount) || selectedSplitWith.length === 0) return;
 
                     const newExpense: Expense = {
                       id: `e${Date.now()}`,
                       description,
                       amount,
                       category,
-                      paidBy: "1", // Default to "You" for demo
+                      paidBy,
                       date: new Date().toISOString(),
-                      splitWith: roommates.map(r => r.id), // Split with everyone by default
+                      splitWith: selectedSplitWith,
                     };
 
                     setExpenses([newExpense, ...expenses]);
                     setShowExpenseModal(false);
+                    setSelectedSplitWith(roommates.map(r => r.id)); // Reset for next time
                   }}
                 >
                   <div className="space-y-3">
@@ -852,6 +1005,18 @@ export default function App() {
                       </select>
                     </div>
                   </div>
+                  
+                  <div className="space-y-3">
+                    <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                      Paid by*
+                    </label>
+                    <select name="paidBy" className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none">
+                      {roommates.map((r) => (
+                        <option key={r.id} value={r.id}>{r.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="space-y-4">
                     <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
                       Split with
@@ -870,7 +1035,14 @@ export default function App() {
                           </div>
                           <input
                             type="checkbox"
-                            defaultChecked
+                            checked={selectedSplitWith.includes(r.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedSplitWith([...selectedSplitWith, r.id]);
+                              } else {
+                                setSelectedSplitWith(selectedSplitWith.filter(id => id !== r.id));
+                              }
+                            }}
                             className="w-6 h-6 rounded-lg border-white/10 bg-transparent text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
                           />
                         </label>
@@ -940,13 +1112,10 @@ export default function App() {
                   onSubmit={(e) => {
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
-                    const fromName = formData.get("from") as string;
-                    const toName = formData.get("to") as string;
+                    const fromId = formData.get("from") as string;
+                    const toId = formData.get("to") as string;
                     const amount = parseFloat(formData.get("amount") as string);
                     const note = formData.get("note") as string;
-
-                    const fromId = roommates.find(r => r.name === fromName)?.id;
-                    const toId = roommates.find(r => r.name === toName)?.id;
 
                     if (!fromId || !toId || isNaN(amount) || fromId === toId) return;
 
@@ -960,7 +1129,21 @@ export default function App() {
                     };
 
                     setPayments([newPayment, ...payments]);
+                    
+                    // Add to recent activity if it's a settlement involving "You"
+                    if (toId === "1") {
+                      setRecentActivities([{
+                        id: Date.now().toString(),
+                        type: "settlement",
+                        from: fromId,
+                        to: toId,
+                        message: note || "Settled up!",
+                        date: new Date().toISOString(),
+                      }, ...recentActivities]);
+                    }
+
                     setShowPaymentModal(false);
+                    addNotification(`Payment logged from ${roommates.find(r => r.id === fromId)?.name}`);
                   }}
                 >
                   <div className="grid grid-cols-2 gap-6">
@@ -968,9 +1151,21 @@ export default function App() {
                       <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
                         From*
                       </label>
-                      <select name="from" className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none">
+                      <select 
+                        name="from" 
+                        value={paymentFrom}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setPaymentFrom(val);
+                          if (val === paymentTo) {
+                            const other = roommates.find(r => r.id !== val);
+                            if (other) setPaymentTo(other.id);
+                          }
+                        }}
+                        className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none"
+                      >
                         {roommates.map((r) => (
-                          <option key={r.id}>{r.name}</option>
+                          <option key={r.id} value={r.id}>{r.name}</option>
                         ))}
                       </select>
                     </div>
@@ -978,9 +1173,21 @@ export default function App() {
                       <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
                         To*
                       </label>
-                      <select name="to" className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none">
+                      <select 
+                        name="to" 
+                        value={paymentTo}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setPaymentTo(val);
+                          if (val === paymentFrom) {
+                            const other = roommates.find(r => r.id !== val);
+                            if (other) setPaymentFrom(other.id);
+                          }
+                        }}
+                        className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none"
+                      >
                         {roommates.map((r) => (
-                          <option key={r.id}>{r.name}</option>
+                          <option key={r.id} value={r.id} disabled={r.id === paymentFrom}>{r.name}</option>
                         ))}
                       </select>
                     </div>
@@ -1029,6 +1236,112 @@ export default function App() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Request Modal */}
+      <AnimatePresence>
+        {showRequestModal && selectedRoommateForRequest && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowRequestModal(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              className="relative w-full max-w-md bg-[#111] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+            >
+              <div className="p-10">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h2 className="text-3xl font-bold tracking-tight">
+                      Request Payment
+                    </h2>
+                    <p className="text-white/30 text-sm font-medium mt-1">
+                      Send a friendly reminder to {selectedRoommateForRequest.name}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowRequestModal(false)}
+                    className="p-3 hover:bg-white/5 rounded-full transition-colors"
+                  >
+                    <X className="w-6 h-6 text-white/20" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                      Select a template
+                    </p>
+                    <div className="grid grid-cols-1 gap-3">
+                      {[
+                        "Hey! Just a friendly reminder for the groceries split. No rush! 😊",
+                        "Settling up the utilities for this month. Whenever you have a sec! ⚡️",
+                        "Shared household supplies update. Thanks for keeping the place stocked! 🏠",
+                        "Hey, we're a bit unbalanced on expenses lately. Let's settle up soon! 🤝",
+                      ].map((template, i) => (
+                        <button
+                          key={i}
+                          onClick={() => {
+                            handleSendRequest(selectedRoommateForRequest, template);
+                            setCustomRequestMessage("");
+                          }}
+                          className="text-left p-5 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 group"
+                        >
+                          <p className="text-sm text-white/70 group-hover:text-white transition-colors">
+                            {template}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div className="w-full border-t border-white/5"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase tracking-widest">
+                      <span className="bg-[#111] px-4 text-white/20 font-bold">Or write your own</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <textarea
+                      value={customRequestMessage}
+                      onChange={(e) => setCustomRequestMessage(e.target.value)}
+                      placeholder="Type a custom message..."
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-sm font-medium h-24 resize-none placeholder:text-white/10"
+                    />
+                    <button
+                      disabled={!customRequestMessage.trim()}
+                      onClick={() => {
+                        handleSendRequest(selectedRoommateForRequest, customRequestMessage);
+                        setCustomRequestMessage("");
+                      }}
+                      className="w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-widest bg-white/10 hover:bg-indigo-500 text-white disabled:opacity-50 disabled:hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Send Custom Message
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-white/5">
+                   <button
+                    onClick={() => setShowRequestModal(false)}
+                    className="w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
