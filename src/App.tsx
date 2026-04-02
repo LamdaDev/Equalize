@@ -295,9 +295,18 @@ export default function App() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setShowConditionB(!showConditionB)}
-            className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors px-3 py-1 border border-white/10 rounded-full"
+            className={cn(
+              "text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-2 rounded-xl transition-all border flex items-center gap-2",
+              showConditionB 
+                ? "bg-indigo-500/20 border-indigo-500/30 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.15)]" 
+                : "bg-white/5 border-white/10 text-white/40 hover:text-white"
+            )}
           >
-            {showConditionB ? "Baseline Mode" : "Fairness Mode"}
+            <div className={cn(
+              "w-2 h-2 rounded-full transition-all",
+              showConditionB ? "bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]" : "bg-white/20"
+            )} />
+            {showConditionB ? "Fairness Mode" : "Baseline Mode"}
           </button>
           <button
             onClick={handleLogout}
@@ -425,7 +434,7 @@ export default function App() {
                             <div className="flex justify-between items-end">
                               <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold text-white/60 border border-white/5">
-                                  {data.name==='You'? currentUser.name.split(" ").map(n => n[0]).join(""):data.initials}
+                                  {data.initials}
                                 </div>
                                 <div>
                                   <span className="block font-bold text-white/90">
@@ -680,13 +689,15 @@ export default function App() {
             >
               <header className="mb-8">
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
-                Recent Activity
+                  Low-Friction Requests
                 </h1>
-                
+                <p className="text-white/40 text-sm font-medium">
+                  Send friendly, templated reminders
+                </p>
               </header>
 
               <div className="space-y-4">
-                {/* <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
+                <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
                   <h3 className="text-lg font-bold mb-6 tracking-tight">
                     Quick Templates
                   </h3>
@@ -707,12 +718,12 @@ export default function App() {
                       </button>
                     ))}
                   </div>
-                </div> */}
+                </div>
 
                 <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
-                  {/* <h3 className="text-lg font-bold mb-6 tracking-tight">
+                  <h3 className="text-lg font-bold mb-6 tracking-tight">
                     Recent Activity
-                  </h3> */}
+                  </h3>
                   <div className="space-y-4">
                     {recentActivities.map((activity) => (
                       <div key={activity.id} className="flex gap-4 items-start">
@@ -775,6 +786,12 @@ export default function App() {
 
                 <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem] space-y-4">
                   <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/20 mb-4">Account Settings</h3>
+                  <button className="w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 font-bold">
+                    Notification Preferences
+                  </button>
+                  <button className="w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 font-bold">
+                    Payment Methods
+                  </button>
                   <button 
                     onClick={handleLogout}
                     className="w-full flex items-center justify-between p-4 bg-rose-500/10 hover:bg-rose-500/20 rounded-2xl transition-all border border-rose-500/10 group font-bold text-rose-400"
@@ -1360,7 +1377,14 @@ export default function App() {
                   </div>
                 </div>
 
-              
+                <div className="mt-8 pt-8 border-t border-white/5">
+                   <button
+                    onClick={() => setShowRequestModal(false)}
+                    className="w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
