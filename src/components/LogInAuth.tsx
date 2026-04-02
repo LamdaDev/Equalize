@@ -16,7 +16,7 @@ export default function LogInAuth({ onLogin, onSignUp }: LogInAuthProps) {
         className="w-full max-w-sm space-y-12 text-center"
       >
         <div className="flex flex-col items-center space-y-6">
-          <Logo className="w-20 h-20 rounded-2xl" />
+          {/* <Logo className="w-20 h-20 rounded-2xl" /> */}
           <div className="space-y-2">
             <h1 className="text-5xl font-bold tracking-tighter">Equalize</h1>
             <p className="text-white/40 font-medium">Fair expense sharing for roommates</p>
