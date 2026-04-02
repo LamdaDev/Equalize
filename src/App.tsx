@@ -689,15 +689,15 @@ export default function App() {
             >
               <header className="mb-8">
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
-                  Low-Friction Requests
+                  Recent Activity
                 </h1>
                 <p className="text-white/40 text-sm font-medium">
-                  Send friendly, templated reminders
+                  List of requests and payment found here
                 </p>
               </header>
 
               <div className="space-y-4">
-                <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
+                {/* <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
                   <h3 className="text-lg font-bold mb-6 tracking-tight">
                     Quick Templates
                   </h3>
@@ -718,12 +718,12 @@ export default function App() {
                       </button>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
-                  <h3 className="text-lg font-bold mb-6 tracking-tight">
+                  {/* <h3 className="text-lg font-bold mb-6 tracking-tight">
                     Recent Activity
-                  </h3>
+                  </h3> */}
                   <div className="space-y-4">
                     {recentActivities.map((activity) => (
                       <div key={activity.id} className="flex gap-4 items-start">
@@ -786,12 +786,7 @@ export default function App() {
 
                 <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem] space-y-4">
                   <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/20 mb-4">Account Settings</h3>
-                  <button className="w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 font-bold">
-                    Notification Preferences
-                  </button>
-                  <button className="w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 font-bold">
-                    Payment Methods
-                  </button>
+                  
                   <button 
                     onClick={handleLogout}
                     className="w-full flex items-center justify-between p-4 bg-rose-500/10 hover:bg-rose-500/20 rounded-2xl transition-all border border-rose-500/10 group font-bold text-rose-400"
