@@ -4,7 +4,7 @@ export const ROOMMATES: Roommate[] = [
   {
     id: "1",
     name: "You",
-    initials: "CC",
+    initials: "",
     avatar: "",
     balance: 0,
     contributionTotal: 0,

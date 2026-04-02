@@ -17,6 +17,7 @@ import {
   DollarSign,
   Receipt,
   Wallet,
+  LogOut,
 } from "lucide-react";
 import { cn } from "./lib/utils";
 import { ROOMMATES, EXPENSES, PAYMENTS } from "./data/mockData";
@@ -27,6 +28,10 @@ import SignUpAuth from "./components/SignUpAuth";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string }>({
+    name: "Chris C.",
+    email: "rjmauricio3@gmail.com",
+  });
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "history" | "messages" | "profile"
@@ -70,6 +75,13 @@ export default function App() {
       date: new Date(Date.now() - 86400000).toISOString(),
     },
   ]);
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setAuthMode("login");
+    setActiveTab("dashboard");
+    setIsPlusMenuOpen(false);
+  };
 
   // Dynamic calculations
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -238,7 +250,15 @@ export default function App() {
             className="min-h-screen"
           >
             <LogInAuth 
-              onLogin={() => setIsLoggedIn(true)} 
+              onLogin={(email) => {
+                setIsLoggedIn(true);
+                // If it's the test account or any login, set to test info as requested
+                // unless we want to be smarter, but the user said "otherwise if they login... info is test"
+                setCurrentUser({
+                  name: "Test User",
+                  email: email || "test@email.com",
+                });
+              }} 
               onSignUp={() => setAuthMode("signup")}
             />
           </motion.div>
@@ -252,7 +272,10 @@ export default function App() {
             className="min-h-screen"
           >
             <SignUpAuth 
-              onSignUpSuccess={() => setAuthMode("login")}
+              onSignUpSuccess={(name, email) => {
+                setIsLoggedIn(true);
+                setCurrentUser({ name, email });
+              }}
               onBackToLogin={() => setAuthMode("login")}
             />
           </motion.div>
@@ -276,9 +299,19 @@ export default function App() {
           >
             {showConditionB ? "Baseline Mode" : "Fairness Mode"}
           </button>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-xs font-bold text-white">
-            CC
-          </div>
+          <button
+            onClick={handleLogout}
+            title="Logout"
+            className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all rounded-xl border border-rose-500/10 bg-rose-500/5 group relative"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+              LOGOUT
+            </span>
+          </button>
+          {/* <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-xs font-bold text-white uppercase shadow-lg shadow-indigo-500/20">
+            {currentUser.name.split(" ").map(n => n[0]).join("")}
+          </div> */}
         </div>
       </nav>
 
@@ -392,7 +425,7 @@ export default function App() {
                             <div className="flex justify-between items-end">
                               <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold text-white/60 border border-white/5">
-                                  {data.initials}
+                                  {data.name==='You'? currentUser.name.split(" ").map(n => n[0]).join(""):data.initials}
                                 </div>
                                 <div>
                                   <span className="block font-bold text-white/90">
@@ -647,15 +680,13 @@ export default function App() {
             >
               <header className="mb-8">
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
-                  Low-Friction Requests
+                Recent Activity
                 </h1>
-                <p className="text-white/40 text-sm font-medium">
-                  Send friendly, templated reminders
-                </p>
+                
               </header>
 
               <div className="space-y-4">
-                <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
+                {/* <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
                   <h3 className="text-lg font-bold mb-6 tracking-tight">
                     Quick Templates
                   </h3>
@@ -676,12 +707,12 @@ export default function App() {
                       </button>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
-                  <h3 className="text-lg font-bold mb-6 tracking-tight">
+                  {/* <h3 className="text-lg font-bold mb-6 tracking-tight">
                     Recent Activity
-                  </h3>
+                  </h3> */}
                   <div className="space-y-4">
                     {recentActivities.map((activity) => (
                       <div key={activity.id} className="flex gap-4 items-start">
@@ -733,28 +764,23 @@ export default function App() {
 
               <div className="space-y-4">
                 <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem] flex items-center gap-6">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-2xl font-bold text-white shadow-xl shadow-indigo-500/20">
-                    CC
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-2xl font-bold text-white shadow-xl shadow-indigo-500/20 uppercase">
+                    {currentUser.name.split(" ").map(n => n[0]).join("")}
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold tracking-tight">Chris C.</h3>
-                    <p className="text-white/40 font-medium tracking-wide">rjmauricio3@gmail.com</p>
+                    <h3 className="text-2xl font-bold tracking-tight">{currentUser.name}</h3>
+                    <p className="text-white/40 font-medium tracking-wide">{currentUser.email}</p>
                   </div>
                 </div>
 
                 <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem] space-y-4">
                   <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/20 mb-4">Account Settings</h3>
-                  <button className="w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 font-bold">
-                    Notification Preferences
-                  </button>
-                  <button className="w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 font-bold">
-                    Payment Methods
-                  </button>
                   <button 
-                    onClick={() => setIsLoggedIn(false)}
-                    className="w-full text-left p-4 bg-rose-500/10 hover:bg-rose-500/20 rounded-2xl transition-all border border-transparent hover:border-rose-500/10 font-bold text-rose-400"
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-between p-4 bg-rose-500/10 hover:bg-rose-500/20 rounded-2xl transition-all border border-rose-500/10 group font-bold text-rose-400"
                   >
-                    Log Out
+                    <span>Log Out</span>
+                    <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
               </div>
@@ -1334,14 +1360,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-white/5">
-                   <button
-                    onClick={() => setShowRequestModal(false)}
-                    className="w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all"
-                  >
-                    Cancel
-                  </button>
-                </div>
+              
               </div>
             </motion.div>
           </div>

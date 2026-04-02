@@ -4,19 +4,21 @@ import { Mail, Lock, User, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface SignUpAuthProps {
-  onSignUpSuccess: () => void;
+  onSignUpSuccess: (name: string, email: string) => void;
   onBackToLogin: () => void;
 }
 
 export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAuthProps) {
   const [isSuccess, setIsSuccess] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     // Simulate account creation
     setIsSuccess(true);
     setTimeout(() => {
-      onSignUpSuccess();
+      onSignUpSuccess(name || "New User", email || "new@user.com");
     }, 3000);
   };
 
@@ -33,7 +35,7 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
             className="w-full max-w-sm space-y-12 text-center"
           >
             <div className="flex flex-col items-center space-y-6">
-              <Logo className="w-20 h-20 rounded-2xl" />
+              {/* <Logo className="w-20 h-20 rounded-2xl" /> */}
               <div className="space-y-2">
                 <h1 className="text-5xl font-bold tracking-tighter">Join Equalize</h1>
                 <p className="text-white/40 font-medium">Start sharing expenses fairly today</p>
@@ -50,6 +52,8 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
                   <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
                   <input 
                     type="text" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
                     required
                     className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
@@ -63,6 +67,8 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
                   <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
                   <input 
                     type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
                     required
                     className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"

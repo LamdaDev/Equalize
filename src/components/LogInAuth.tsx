@@ -1,13 +1,16 @@
 import { motion } from 'motion/react';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { Logo } from './Logo';
+import { useState } from 'react';
 
 interface LogInAuthProps {
-  onLogin: () => void;
+  onLogin: (email?: string) => void;
   onSignUp: () => void;
 }
 
 export default function LogInAuth({ onLogin, onSignUp }: LogInAuthProps) {
+  const [email, setEmail] = useState("");
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white font-sans flex flex-col items-center justify-center px-6 selection:bg-indigo-500/30">
       <motion.div 
@@ -25,7 +28,7 @@ export default function LogInAuth({ onLogin, onSignUp }: LogInAuthProps) {
 
         <form 
           className="space-y-4 text-left" 
-          onSubmit={(e) => { e.preventDefault(); onLogin(); }}
+          onSubmit={(e) => { e.preventDefault(); onLogin(email); }}
         >
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">Email Address</label>
@@ -33,6 +36,8 @@ export default function LogInAuth({ onLogin, onSignUp }: LogInAuthProps) {
               <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
                 required
                 className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
