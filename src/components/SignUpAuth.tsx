@@ -6,12 +6,22 @@ import { Logo } from './Logo';
 interface SignUpAuthProps {
   onSignUpSuccess: (name: string, email: string) => void;
   onBackToLogin: () => void;
+  onGoToLanding: () => void;
+  isDark: boolean;
 }
 
-export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAuthProps) {
+export default function SignUpAuth({ onSignUpSuccess, onBackToLogin, onGoToLanding, isDark }: SignUpAuthProps) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const pageClass = isDark ? "bg-[#0A0A0A] text-white" : "bg-white text-black";
+  const borderClass = isDark ? "border-white/10" : "border-black/10";
+  const bgSecondaryClass = isDark ? "bg-white/5" : "bg-black/5";
+  const textSecondaryClass = isDark ? "text-white/40" : "text-black/60";
+  const textMutedClass = isDark ? "text-white/30" : "text-black/40";
+  const inputClass = isDark
+    ? "bg-white/5 border-white/10 text-white placeholder:text-white/10 focus:bg-white/[0.08]"
+    : "bg-black/5 border-black/10 text-black placeholder:text-black/30 focus:bg-black/[0.08]";
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -23,7 +33,20 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans flex flex-col items-center justify-center px-6 selection:bg-indigo-500/30 overflow-hidden">
+    <div className={`min-h-screen ${pageClass} font-sans flex flex-col items-center justify-center px-6 selection:bg-indigo-500/30 overflow-hidden relative`}>
+      <motion.nav
+        initial={{ opacity: 0, x: -8 }}
+        animate={{ opacity: 1, x: 0 }}
+        className={`absolute top-6 left-6 inline-flex items-center gap-2 rounded-lg border ${borderClass} ${bgSecondaryClass} px-4 py-2 text-sm font-semibold ${textSecondaryClass}`}
+        aria-label="Breadcrumb"
+      >
+        <button onClick={onGoToLanding} className={isDark ? "hover:text-white" : "hover:text-black"}>
+          Home
+        </button>
+        <span>/</span>
+        <span className={isDark ? "text-white" : "text-black"}>Sign Up</span>
+      </motion.nav>
+
       <AnimatePresence mode="wait">
         {!isSuccess ? (
           <motion.div 
@@ -37,8 +60,8 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
             <div className="flex flex-col items-center space-y-6">
               {/* <Logo className="w-20 h-20 rounded-2xl" /> */}
               <div className="space-y-2">
-                <h1 className="text-5xl font-bold tracking-tighter">Join Equalize</h1>
-                <p className="text-white/40 font-medium">Start sharing expenses fairly today</p>
+                <button onClick={onGoToLanding} className="text-5xl font-bold tracking-tighter">Join Equalize</button>
+                <p className={textSecondaryClass + " font-medium"}>Start sharing expenses fairly today</p>
               </div>
             </div>
 
@@ -47,44 +70,44 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
               onSubmit={handleSubmit}
             >
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">Full Name</label>
+                <label className={`text-[10px] font-bold uppercase tracking-[0.2em] ${textMutedClass} ml-1`}>Full Name</label>
                 <div className="relative group">
-                  <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
+                  <User className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? "text-white/20 group-focus-within:text-indigo-500" : "text-black/20 group-focus-within:text-indigo-600"} transition-colors`} />
                   <input 
                     type="text" 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
+                    className={`w-full border rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all font-medium ${inputClass}`}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">Email Address</label>
+                <label className={`text-[10px] font-bold uppercase tracking-[0.2em] ${textMutedClass} ml-1`}>Email Address</label>
                 <div className="relative group">
-                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
+                  <Mail className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? "text-white/20 group-focus-within:text-indigo-500" : "text-black/20 group-focus-within:text-indigo-600"} transition-colors`} />
                   <input 
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
+                    className={`w-full border rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all font-medium ${inputClass}`}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">Password</label>
+                <label className={`text-[10px] font-bold uppercase tracking-[0.2em] ${textMutedClass} ml-1`}>Password</label>
                 <div className="relative group">
-                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-indigo-500 transition-colors" />
+                  <Lock className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? "text-white/20 group-focus-within:text-indigo-500" : "text-black/20 group-focus-within:text-indigo-600"} transition-colors`} />
                   <input 
                     type="password" 
                     placeholder="••••••••"
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all font-medium placeholder:text-white/10"
+                    className={`w-full border rounded-2xl pl-14 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all font-medium ${inputClass}`}
                   />
                 </div>
               </div>
@@ -100,14 +123,14 @@ export default function SignUpAuth({ onSignUpSuccess, onBackToLogin }: SignUpAut
                 <button 
                   type="button"
                   onClick={onBackToLogin}
-                  className="w-full bg-white/5 text-white/60 font-bold py-5 rounded-2xl hover:bg-white/10 transition-all border border-white/5"
+                  className={`w-full font-bold py-5 rounded-2xl transition-all border ${isDark ? "bg-white/5 text-white/60 border-white/5 hover:bg-white/10" : "bg-black/5 text-black/60 border-black/10 hover:bg-black/10"}`}
                 >
                   Already have an account? Login
                 </button>
               </div>
             </form>
 
-            <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.2em]">
+            <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-white/20" : "text-black/20"}`}>
               SOEN 357 • Final Project Prototype
             </p>
           </motion.div>
