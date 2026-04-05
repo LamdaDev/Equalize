@@ -18,6 +18,8 @@ import {
   Receipt,
   Wallet,
   LogOut,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { cn } from "./lib/utils";
 import { ROOMMATES, EXPENSES, PAYMENTS } from "./data/mockData";
@@ -25,6 +27,10 @@ import { Roommate, Expense, Category, Payment } from "./types";
 import { Logo } from "./components/Logo";
 import LogInAuth from "./components/LogInAuth";
 import SignUpAuth from "./components/SignUpAuth";
+import LandingPage from "./components/LandingPage";
+import FeaturesPage from "./components/FeaturesPage";
+import AboutPage from "./components/AboutPage";
+import ContactPage from "./components/ContactPage";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,7 +38,8 @@ export default function App() {
     name: "Chris C.",
     email: "rjmauricio3@gmail.com",
   });
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [authMode, setAuthMode] = useState<"landing" | "login" | "signup" | "features" | "about" | "contact">("landing");
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "history" | "messages" | "profile"
   >("dashboard");
@@ -78,7 +85,7 @@ export default function App() {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setAuthMode("login");
+    setAuthMode("landing");
     setActiveTab("dashboard");
     setIsPlusMenuOpen(false);
   };
@@ -222,6 +229,23 @@ export default function App() {
     setShowRequestModal(false);
   };
 
+  const openRequestPaymentModal = () => {
+    const defaultRoommateId =
+      roommatesWithStats.find((r) => r.id !== "1" && r.balance > 0)?.id ??
+      roommates.find((r) => r.id !== "1")?.id;
+    const defaultRoommate = defaultRoommateId
+      ? roommates.find((r) => r.id === defaultRoommateId) ?? null
+      : null;
+
+    if (!defaultRoommate) {
+      addNotification("No roommate available for a payment request yet.");
+      return;
+    }
+
+    setSelectedRoommateForRequest(defaultRoommate);
+    setShowRequestModal(true);
+  };
+
   const getCategoryIcon = (category: Category) => {
     switch (category) {
       case "Groceries":
@@ -237,10 +261,136 @@ export default function App() {
     }
   };
 
+  const signedInPageClass = cn(
+    "min-h-screen font-sans selection:bg-indigo-500/30 pb-32",
+    isDarkTheme ? "bg-[#0A0A0A] text-white" : "bg-white text-black"
+  );
+  const signedInNavClass = cn(
+    "fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b px-6 py-4 flex items-center justify-between",
+    isDarkTheme ? "bg-[#0A0A0A]/80 border-white/5" : "bg-white/80 border-black/5"
+  );
+  const signedInSurfaceClass = isDarkTheme
+    ? "bg-[#151515] border border-white/5"
+    : "bg-white border border-black/10 shadow-sm";
+  const signedInSurfaceHoverClass = isDarkTheme
+    ? "hover:border-white/10"
+    : "hover:border-black/20";
+  const signedInMutedTextClass = isDarkTheme ? "text-white/40" : "text-black/50";
+  const signedInSubtleTextClass = isDarkTheme ? "text-white/30" : "text-black/40";
+  const signedInIconSurfaceClass = isDarkTheme
+    ? "bg-white/5 border-white/5 text-white/40"
+    : "bg-black/5 border-black/10 text-black/50";
+  const signedInSoftSurfaceClass = isDarkTheme ? "bg-white/5" : "bg-black/5";
+  const signedInSoftSurfaceHoverClass = isDarkTheme ? "hover:bg-white/10" : "hover:bg-black/10";
+  const signedInButtonTextClass = isDarkTheme ? "text-white" : "text-black";
+  const signedInFloatingBarClass = isDarkTheme
+    ? "bg-[#1A1A1A]/90 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+    : "bg-white/90 border-black/10 shadow-[0_20px_50px_rgba(0,0,0,0.12)]";
+  const signedInFloatingButtonClass = isDarkTheme
+    ? "bg-[#1A1A1A] border border-white/10 hover:bg-white/5"
+    : "bg-white border border-black/10 hover:bg-black/5";
+  const signedInFloatingIconClass = isDarkTheme ? "text-white/30 hover:text-white" : "text-black/30 hover:text-black";
+  const signedInFloatingIconActiveClass = isDarkTheme ? "text-indigo-400" : "text-indigo-600";
+  const signedInFloatingPlusClass = isDarkTheme ? "bg-indigo-500 text-white" : "bg-indigo-600 text-white";
+  const signedInFloatingPlusActiveClass = isDarkTheme ? "bg-white text-indigo-500 rotate-45" : "bg-black text-white rotate-45";
+  const signedInModalClass = isDarkTheme
+    ? "bg-[#111] border border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+    : "bg-white border border-black/10 shadow-[0_50px_100px_rgba(0,0,0,0.18)]";
+  const signedInModalMutedClass = isDarkTheme ? "text-white/30" : "text-black/50";
+  const signedInModalTextClass = isDarkTheme ? "text-white/20" : "text-black/30";
+  const signedInModalInputClass = isDarkTheme
+    ? "bg-white/5 border-white/10 text-white placeholder:text-white/10 focus:bg-white/[0.08]"
+    : "bg-black/5 border-black/10 text-black placeholder:text-black/25 focus:bg-black/[0.08]";
+  const signedInModalSelectClass = isDarkTheme
+    ? "bg-[#111] text-white border-white/10 focus:bg-[#1A1A1A]"
+    : "bg-white text-black border-black/10 focus:bg-black/[0.04]";
+  const signedInModalOptionClass = isDarkTheme
+    ? "bg-[#111] text-white"
+    : "bg-white text-black";
+  const signedInModalTemplateButtonClass = isDarkTheme
+    ? "bg-white/5 hover:bg-white/10 border-transparent hover:border-white/5"
+    : "bg-black/5 hover:bg-black/10 border-transparent hover:border-black/10";
+  const signedInRecentActivityCardClass = isDarkTheme ? "bg-[#151515] border border-white/5" : "bg-white border border-black/10 shadow-sm";
+  const signedInRecentActivityMutedClass = isDarkTheme ? "text-white/40" : "text-black/50";
+  const signedInRecentActivityTemplateClass = isDarkTheme ? "bg-white/5 hover:bg-white/10 border-transparent hover:border-white/5" : "bg-black/5 hover:bg-black/10 border-transparent hover:border-black/10";
+  const signedInRecentActivityDividerClass = isDarkTheme ? "border-white/5" : "border-black/10";
+  const signedInModalDividerClass = isDarkTheme ? "border-white/5" : "border-black/10";
+
   if (!isLoggedIn) {
     return (
       <AnimatePresence mode="wait">
-        {authMode === "login" ? (
+        {authMode === "landing" ? (
+          <motion.div
+            key="landing"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-screen"
+          >
+            <LandingPage
+              onLogin={() => setAuthMode("login")}
+              onSignUp={() => setAuthMode("signup")}
+              onNavigate={(page) => setAuthMode(page)}
+              isDark={isDarkTheme}
+              onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
+            />
+          </motion.div>
+        ) : authMode === "features" ? (
+          <motion.div
+            key="features"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-screen"
+          >
+            <FeaturesPage
+              onBack={() => setAuthMode("landing")}
+              isDark={isDarkTheme}
+              onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
+              onNavigate={(page) => setAuthMode(page)}
+              onLogin={() => setAuthMode("login")}
+              onSignUp={() => setAuthMode("signup")}
+            />
+          </motion.div>
+        ) : authMode === "about" ? (
+          <motion.div
+            key="about"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-screen"
+          >
+            <AboutPage
+              onBack={() => setAuthMode("landing")}
+              isDark={isDarkTheme}
+              onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
+              onNavigate={(page) => setAuthMode(page)}
+              onLogin={() => setAuthMode("login")}
+              onSignUp={() => setAuthMode("signup")}
+            />
+          </motion.div>
+        ) : authMode === "contact" ? (
+          <motion.div
+            key="contact"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-screen"
+          >
+            <ContactPage
+              onBack={() => setAuthMode("landing")}
+              isDark={isDarkTheme}
+              onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
+              onNavigate={(page) => setAuthMode(page)}
+              onLogin={() => setAuthMode("login")}
+              onSignUp={() => setAuthMode("signup")}
+            />
+          </motion.div>
+        ) : authMode === "login" ? (
           <motion.div
             key="login"
             initial={{ opacity: 0, x: -20 }}
@@ -260,6 +410,8 @@ export default function App() {
                 });
               }} 
               onSignUp={() => setAuthMode("signup")}
+              onGoToLanding={() => setAuthMode("landing")}
+              isDark={isDarkTheme}
             />
           </motion.div>
         ) : (
@@ -277,6 +429,8 @@ export default function App() {
                 setCurrentUser({ name, email });
               }}
               onBackToLogin={() => setAuthMode("login")}
+              onGoToLanding={() => setAuthMode("landing")}
+              isDark={isDarkTheme}
             />
           </motion.div>
         )}
@@ -285,12 +439,21 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-indigo-500/30 pb-32">
+    <div className={signedInPageClass}>
       {/* Top Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/80 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between">
+      <nav className={signedInNavClass}>
         <div className="flex items-center gap-3">
           {/* <Logo className="w-8 h-8 rounded-lg" /> */}
-          <span className="text-xl font-bold tracking-tight">Equalize</span>
+          <button
+            onClick={() => {
+              setIsLoggedIn(false);
+              setAuthMode("landing");
+              setActiveTab("dashboard");
+            }}
+            className="text-xl font-bold tracking-tight"
+          >
+            Equalize
+          </button>
         </div>
         <div className="flex items-center gap-4">
           <button
@@ -298,8 +461,10 @@ export default function App() {
             className={cn(
               "text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-2 rounded-xl transition-all border flex items-center gap-2",
               showConditionB 
-                ? "bg-indigo-500/20 border-indigo-500/30 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.15)]" 
-                : "bg-white/5 border-white/10 text-white/40 hover:text-white"
+                ? "bg-indigo-500/20 border-indigo-500/30 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                : isDarkTheme
+                  ? "bg-white/5 border-white/10 text-white/40 hover:text-white"
+                  : "bg-black/5 border-black/10 text-black/50 hover:text-black"
             )}
           >
             <div className={cn(
@@ -307,6 +472,18 @@ export default function App() {
               showConditionB ? "bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]" : "bg-white/20"
             )} />
             {showConditionB ? "Fairness Mode" : "Baseline Mode"}
+          </button>
+          <button
+            onClick={() => setIsDarkTheme(!isDarkTheme)}
+            title="Toggle theme"
+            className={cn(
+              "p-2 rounded-xl border transition-all",
+              isDarkTheme
+                ? "text-white/80 border-white/10 bg-white/5 hover:text-white hover:bg-white/10"
+                : "text-black/70 border-black/10 bg-black/5 hover:text-black hover:bg-black/10"
+            )}
+          >
+            {isDarkTheme ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           <button
             onClick={handleLogout}
@@ -379,18 +556,18 @@ export default function App() {
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
                   Household Dashboard
                 </h1>
-                <p className="text-white/40 text-sm font-medium">
+                <p className={signedInMutedTextClass + " text-sm font-medium"}>
                   April 2026 • Shared apartment
                 </p>
               </header>
 
               {/* Summary Cards */}
               <div className="grid grid-cols-2 gap-4 mb-10">
-                <div className="bg-[#151515] border border-white/5 p-6 rounded-3xl relative overflow-hidden group">
+                <div className={cn(signedInSurfaceClass, "p-6 rounded-3xl relative overflow-hidden group") }>
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <ArrowUpRight className="w-12 h-12" />
                   </div>
-                  <p className="text-white/40 text-[12px] font-bold uppercase tracking-[0.15em] mb-2">
+                  <p className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.15em] mb-2"}>
                     {totalOwedToYou >= totalYouOwe ? "You are owed" : "You owe"}
                   </p>
                   <p className={cn(
@@ -400,14 +577,14 @@ export default function App() {
                     ${Math.abs(totalOwedToYou - totalYouOwe).toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-[#151515] border border-white/5 p-6 rounded-3xl relative overflow-hidden group">
+                <div className={cn(signedInSurfaceClass, "p-6 rounded-3xl relative overflow-hidden group") }>
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <ShoppingCart className="w-12 h-12" />
                   </div>
-                  <p className="text-white/40 text-[12px] font-bold uppercase tracking-[0.15em] mb-2">
+                  <p className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.15em] mb-2"}>
                     Total this month
                   </p>
-                  <p className="text-4xl font-bold text-white tracking-tight">
+                  <p className="text-4xl font-bold tracking-tight">
                     ${totalSpentMonth.toFixed(2)}
                   </p>
                 </div>
@@ -423,33 +600,33 @@ export default function App() {
                     className="mb-12"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/40">
+                      <h2 className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.2em]"}>
                         Contribution Breakdown - April
                       </h2>
                     </div>
-                    <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
+                    <div className={cn(signedInSurfaceClass, "p-8 rounded-[2rem]") }>
                       <div className="space-y-8">
                         {contributionData.map((data, idx) => (
                           <div key={idx} className="space-y-3">
                             <div className="flex justify-between items-end">
                               <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold text-white/60 border border-white/5">
+                                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border", signedInSoftSurfaceClass, isDarkTheme ? "text-white/60 border-white/5" : "text-black/60 border-black/10") }>
                                   {data.initials}
                                 </div>
                                 <div>
-                                  <span className="block font-bold text-white/90">
+                                  <span className="block font-bold">
                                     {data.name}
                                   </span>
-                                  <span className="text-[12px] text-white/40 font-medium tracking-wide">
+                                  <span className={signedInMutedTextClass + " text-[12px] font-medium tracking-wide"}>
                                     ${data.value.toFixed(2)} contributed
                                   </span>
                                 </div>
                               </div>
-                              <span className="text-sm font-bold text-white/60">
+                              <span className={signedInMutedTextClass + " text-sm font-bold"}>
                                 {data.percentage}%
                               </span>
                             </div>
-                            <div className="h-3 bg-white/5 rounded-full overflow-hidden p-[2px]">
+                            <div className={cn("h-3 rounded-full overflow-hidden p-[2px]", signedInSoftSurfaceClass)}>
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${data.percentage}%` }}
@@ -469,12 +646,12 @@ export default function App() {
                           </div>
                         ))}
                       </div>
-                      <div className="mt-10 pt-8 border-t border-white/5">
+                      <div className={cn("mt-10 pt-8 border-t", isDarkTheme ? "border-white/5" : "border-black/10")}>
                         <div className="flex gap-4 items-start">
                           <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
                             <Zap className="w-4 h-4 text-indigo-500" />
                           </div>
-                          <p className="text-sm text-white/50 leading-relaxed">
+                          <p className={signedInMutedTextClass + " text-sm leading-relaxed"}>
                             <span className="text-indigo-400 font-bold italic mr-1 tracking-tight">
                               Fairness Insight:
                             </span>
@@ -490,7 +667,7 @@ export default function App() {
               {/* Roommate Balances */}
               <section className="mb-12">
                 <div className="flex items-center justify-between mb-4 px-1">
-                  <h2 className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/40">
+                  <h2 className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.2em]"}>
                     Roommate Balances
                   </h2>
                   <button
@@ -506,17 +683,17 @@ export default function App() {
                     .map((r) => (
                       <div
                         key={r.id}
-                        className="bg-[#151515] border border-white/5 p-5 rounded-3xl flex items-center justify-between group hover:border-white/10 transition-all hover:translate-x-1"
+                        className={cn(signedInSurfaceClass, "p-5 rounded-3xl flex items-center justify-between group transition-all hover:translate-x-1", signedInSurfaceHoverClass)}
                       >
                         <div className="flex items-center gap-5">
-                          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white/60 border border-white/5">
+                          <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border", signedInSoftSurfaceClass, isDarkTheme ? "text-white/60 border-white/5" : "text-black/60 border-black/10") }>
                             {r.initials}
                           </div>
                           <div>
                             <p className="font-bold text-lg tracking-tight">
                               {r.name}
                             </p>
-                            <p className="text-[12px] font-bold uppercase tracking-widest text-white/30">
+                            <p className={signedInSubtleTextClass + " text-[12px] font-bold uppercase tracking-widest"}>
                               {r.balance > 0 ? "owes you" : "you owe them"}
                             </p>
                           </div>
@@ -542,7 +719,7 @@ export default function App() {
                                 setShowPaymentModal(true);
                               }
                             }}
-                            className="w-[100px] flex items-center justify-center bg-white/5 hover:bg-white/10 text-[12px] font-bold uppercase tracking-[0.15em] px-5 py-2.5 rounded-xl transition-all active:scale-95"
+                            className={cn("w-[100px] flex items-center justify-center text-[12px] font-bold uppercase tracking-[0.15em] px-5 py-2.5 rounded-xl transition-all active:scale-95", signedInSoftSurfaceClass, signedInSoftSurfaceHoverClass)}
                           >
                             {r.balance > 0 ? "request" : "pay"}
                           </button>
@@ -555,7 +732,7 @@ export default function App() {
               {/* Recent Expenses */}
               <section>
                 <div className="flex items-center justify-between mb-4 px-1">
-                  <h2 className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/40">
+                  <h2 className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.2em]"}>
                     Recent Expenses
                   </h2>
                   <button
@@ -569,17 +746,17 @@ export default function App() {
                   {sortedExpenses.map((e) => (
                     <div
                       key={e.id}
-                      className="bg-[#151515] border border-white/5 p-5 rounded-3xl flex items-center justify-between group hover:border-white/10 transition-all"
+                      className={cn(signedInSurfaceClass, "p-5 rounded-3xl flex items-center justify-between group transition-all", signedInSurfaceHoverClass)}
                     >
                       <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-2xl bg-black/5 flex items-center justify-center text-white/40 border border-white/5 group-hover:text-white transition-colors">
+                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors", signedInIconSurfaceClass)}>
                           {getCategoryIcon(e.category)}
                         </div>
                         <div>
                           <p className="font-bold tracking-tight">
                             {e.description}
                           </p>
-                          <p className="text-[12px] font-bold uppercase tracking-widest text-white/30">
+                          <p className={signedInSubtleTextClass + " text-[12px] font-bold uppercase tracking-widest"}>
                             Paid by{" "}
                             {roommatesWithStats.find((r) => r.id === e.paidBy)?.name} •{" "}
                             {new Date(e.date).toLocaleDateString("en-US", {
@@ -593,7 +770,7 @@ export default function App() {
                         <p className="font-bold text-lg tracking-tight">
                           ${e.amount.toFixed(2)}
                         </p>
-                        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/20">
+                        <p className={signedInSubtleTextClass + " text-[9px] font-bold uppercase tracking-[0.2em]"}>
                           split {e.splitWith.length} ways
                         </p>
                       </div>
@@ -616,7 +793,7 @@ export default function App() {
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
                   Activity History
                 </h1>
-                <p className="text-white/40 text-sm font-medium">
+                <p className={signedInMutedTextClass + " text-sm font-medium"}>
                   All shared costs and settlements
                 </p>
               </header>
@@ -630,12 +807,14 @@ export default function App() {
                 .map((item) => (
                   <div
                     key={item.id}
-                    className="bg-[#151515] border border-white/5 p-5 rounded-3xl flex items-center justify-between group hover:border-white/10 transition-all"
+                    className={cn(signedInSurfaceClass, "p-5 rounded-3xl flex items-center justify-between group transition-all", signedInSurfaceHoverClass)}
                   >
                     <div className="flex items-center gap-5">
                       <div className={cn(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center border border-white/5",
-                        item.activityType === 'expense' ? "bg-white/5 text-white/40" : "bg-emerald-500/10 text-emerald-400"
+                        "w-12 h-12 rounded-2xl flex items-center justify-center border",
+                        item.activityType === 'expense'
+                          ? cn(signedInSoftSurfaceClass, isDarkTheme ? "text-white/40 border-white/5" : "text-black/50 border-black/10")
+                          : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                       )}>
                         {item.activityType === 'expense' ? (
                           getCategoryIcon((item as Expense).category)
@@ -650,7 +829,7 @@ export default function App() {
                             : `Payment from ${roommates.find(r => r.id === (item as Payment).from)?.name} to ${roommates.find(r => r.id === (item as Payment).to)?.name}`
                           }
                         </p>
-                        <p className="text-[12px] font-bold uppercase tracking-widest text-white/30">
+                        <p className={signedInSubtleTextClass + " text-[12px] font-bold uppercase tracking-widest"}>
                           {new Date(item.date).toLocaleDateString("en-US", {
                             weekday: "long",
                             month: "short",
@@ -668,7 +847,7 @@ export default function App() {
                         ${item.amount.toFixed(2)}
                       </p>
                       {item.activityType === 'expense' && (
-                        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/20">
+                        <p className={signedInSubtleTextClass + " text-[9px] font-bold uppercase tracking-[0.2em]"}>
                           split {(item as Expense).splitWith.length} ways
                         </p>
                       )}
@@ -691,7 +870,7 @@ export default function App() {
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
                   Recent Activity
                 </h1>
-                <p className="text-white/40 text-sm font-medium">
+                <p className={signedInMutedTextClass + " text-sm font-medium"}>
                   List of requests and payment found here
                 </p>
               </header>
@@ -720,7 +899,7 @@ export default function App() {
                   </div>
                 </div> */}
 
-                <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
+                <div className={cn(signedInRecentActivityCardClass, "p-8 rounded-[2rem]")}>
                   {/* <h3 className="text-lg font-bold mb-6 tracking-tight">
                     Recent Activity
                   </h3> */}
@@ -744,7 +923,7 @@ export default function App() {
                               : `You sent a reminder to ${roommates.find(r => r.id === activity.to)?.name}`
                             }
                           </p>
-                          <p className="text-xs text-white/40 mt-1">
+                          <p className={signedInRecentActivityMutedClass + " text-xs mt-1"}>
                             "{activity.message}" • {new Date(activity.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
@@ -768,24 +947,24 @@ export default function App() {
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
                   Your Profile
                 </h1>
-                <p className="text-white/40 text-sm font-medium">
+                <p className={signedInMutedTextClass + " text-sm font-medium"}>
                   Manage your account and preferences
                 </p>
               </header>
 
               <div className="space-y-4">
-                <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem] flex items-center gap-6">
+                <div className={cn(signedInSurfaceClass, "p-8 rounded-[2rem] flex items-center gap-6") }>
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-2xl font-bold text-white shadow-xl shadow-indigo-500/20 uppercase">
                     {currentUser.name.split(" ").map(n => n[0]).join("")}
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold tracking-tight">{currentUser.name}</h3>
-                    <p className="text-white/40 font-medium tracking-wide">{currentUser.email}</p>
+                    <p className={signedInMutedTextClass + " font-medium tracking-wide"}>{currentUser.email}</p>
                   </div>
                 </div>
 
-                <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem] space-y-4">
-                  <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/20 mb-4">Account Settings</h3>
+                <div className={cn(signedInSurfaceClass, "p-8 rounded-[2rem] space-y-4") }>
+                  <h3 className={signedInSubtleTextClass + " text-[12px] font-bold uppercase tracking-[0.2em] mb-4"}>Account Settings</h3>
                   
                   <button 
                     onClick={handleLogout}
@@ -816,7 +995,7 @@ export default function App() {
                     setShowExpenseModal(true);
                     setIsPlusMenuOpen(false);
                   }}
-                  className="flex items-center gap-3 bg-[#1A1A1A] border border-white/10 px-6 py-4 rounded-2xl shadow-2xl hover:bg-white/5 transition-colors whitespace-nowrap"
+                  className={cn("flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-colors whitespace-nowrap", signedInFloatingButtonClass)}
                 >
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
                     <Receipt className="w-5 h-5 text-indigo-400" />
@@ -832,26 +1011,42 @@ export default function App() {
                     setShowPaymentModal(true);
                     setIsPlusMenuOpen(false);
                   }}
-                  className="flex items-center gap-3 bg-[#1A1A1A] border border-white/10 px-6 py-4 rounded-2xl shadow-2xl hover:bg-white/5 transition-colors whitespace-nowrap"
+                  className={cn("flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-colors whitespace-nowrap", signedInFloatingButtonClass)}
                 >
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
                     <Wallet className="w-5 h-5 text-emerald-400" />
                   </div>
                   <span className="text-base font-bold tracking-tight">Log Payment</span>
                 </motion.button>
+                <motion.button
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                  transition={{ delay: 0.1 }}
+                  onClick={() => {
+                    openRequestPaymentModal();
+                    setIsPlusMenuOpen(false);
+                  }}
+                  className={cn("flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-colors whitespace-nowrap", signedInFloatingButtonClass)}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                    <Send className="w-5 h-5 text-amber-400" />
+                  </div>
+                  <span className="text-base font-bold tracking-tight">Request Payment</span>
+                </motion.button>
               </div>
             )}
           </AnimatePresence>
 
-          <div className="bg-[#1A1A1A]/90 backdrop-blur-2xl border border-white/10 px-4 py-3 rounded-[3rem] flex items-center gap-1 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+          <div className={cn("backdrop-blur-2xl px-4 py-3 rounded-[3rem] flex items-center gap-1", signedInFloatingBarClass)}>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setActiveTab("dashboard")}
                 className={cn(
                   "p-4 rounded-full transition-all duration-500 relative",
                   activeTab === "dashboard"
-                    ? "text-indigo-400"
-                    : "text-white/30 hover:text-white",
+                    ? signedInFloatingIconActiveClass
+                    : signedInFloatingIconClass,
                 )}
               >
                 <LayoutDashboard className="w-6 h-6" />
@@ -867,8 +1062,8 @@ export default function App() {
                 className={cn(
                   "p-4 rounded-full transition-all duration-500 relative",
                   activeTab === "history"
-                    ? "text-indigo-400"
-                    : "text-white/30 hover:text-white",
+                    ? signedInFloatingIconActiveClass
+                    : signedInFloatingIconClass,
                 )}
               >
                 <History className="w-6 h-6" />
@@ -887,9 +1082,9 @@ export default function App() {
                 onClick={() => setIsPlusMenuOpen(!isPlusMenuOpen)}
                 className={cn(
                   "w-16 h-16 rounded-full transition-all duration-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 active:scale-95",
-                  isPlusMenuOpen 
-                    ? "bg-white text-indigo-500 rotate-45" 
-                    : "bg-indigo-500 text-white"
+                  isPlusMenuOpen
+                    ? signedInFloatingPlusActiveClass
+                    : signedInFloatingPlusClass
                 )}
               >
                 <Plus className="w-8 h-8" />
@@ -902,8 +1097,8 @@ export default function App() {
                 className={cn(
                   "p-4 rounded-full transition-all duration-500 relative",
                   activeTab === "messages"
-                    ? "text-indigo-400"
-                    : "text-white/30 hover:text-white",
+                    ? signedInFloatingIconActiveClass
+                    : signedInFloatingIconClass,
                 )}
               >
                 <MessageSquare className="w-6 h-6" />
@@ -919,8 +1114,8 @@ export default function App() {
                 className={cn(
                   "p-4 rounded-full transition-all duration-500 relative",
                   activeTab === "profile"
-                    ? "text-indigo-400"
-                    : "text-white/30 hover:text-white",
+                    ? signedInFloatingIconActiveClass
+                    : signedInFloatingIconClass,
                 )}
               >
                 <User className="w-6 h-6" />
@@ -952,7 +1147,7 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-md bg-[#111] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+              className={cn("relative w-full max-w-md rounded-[3rem] overflow-hidden", signedInModalClass)}
             >
               <div className="p-10">
                 <div className="flex items-center justify-between mb-10">
@@ -960,15 +1155,15 @@ export default function App() {
                     <h2 className="text-3xl font-bold tracking-tight">
                       Add an expense
                     </h2>
-                    <p className="text-white/30 text-sm font-medium mt-1">
+                    <p className={signedInModalMutedClass + " text-sm font-medium mt-1"}>
                       Log a shared cost to be split
                     </p>
                   </div>
                   <button
                     onClick={() => setShowExpenseModal(false)}
-                    className="p-3 hover:bg-white/5 rounded-full transition-colors"
+                    className={cn("p-3 rounded-full transition-colors", signedInSoftSurfaceHoverClass)}
                   >
-                    <X className="w-6 h-6 text-white/20" />
+                    <X className={cn("w-6 h-6", signedInModalTextClass)} />
                   </button>
                 </div>
 
@@ -1000,7 +1195,7 @@ export default function App() {
                   }}
                 >
                   <div className="space-y-3">
-                    <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                    <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                       Description*
                     </label>
                     <input
@@ -1008,16 +1203,16 @@ export default function App() {
                       type="text"
                       required
                       placeholder="e.g. Grocery run"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
+                      className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium", signedInModalInputClass)}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-3">
-                      <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                         Amount*
                       </label>
                       <div className="relative">
-                        <span className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 text-lg">
+                        <span className={cn("absolute left-6 top-1/2 -translate-y-1/2 text-lg", signedInModalTextClass)}>
                           $
                         </span>
                         <input
@@ -1026,15 +1221,15 @@ export default function App() {
                           step="0.01"
                           required
                           placeholder="0.00"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
+                          className={cn("w-full rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium", signedInModalInputClass)}
                         />
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                         Category
                       </label>
-                      <select name="category" className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none">
+                      <select name="category" className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none", signedInModalSelectClass)}>
                         <option value="Groceries">Groceries</option>
                         <option value="Utilities">Utilities</option>
                         <option value="Household">Household</option>
@@ -1045,10 +1240,10 @@ export default function App() {
                   </div>
                   
                   <div className="space-y-3">
-                    <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                    <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                       Paid by*
                     </label>
-                    <select name="paidBy" className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none">
+                    <select name="paidBy" className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none", signedInModalSelectClass)}>
                       {roommates.map((r) => (
                         <option key={r.id} value={r.id}>{r.name}</option>
                       ))}
@@ -1056,20 +1251,20 @@ export default function App() {
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                       Split with
                     </label>
                     <div className="grid grid-cols-1 gap-2">
                       {roommates.map((r) => (
                         <label
                           key={r.id}
-                          className="flex items-center justify-between p-4 bg-white/5 rounded-2xl cursor-pointer hover:bg-white/10 transition-all border border-transparent hover:border-white/5"
+                            className={cn("flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border border-transparent", signedInModalTemplateButtonClass)}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[12px] font-bold text-white/40">
+                              <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold", signedInSoftSurfaceClass, signedInModalMutedClass)}>
                               {r.initials}
                             </div>
-                            <span className="text-sm font-bold">{r.name}</span>
+                              <span className="text-sm font-bold">{r.name}</span>
                           </div>
                           <input
                             type="checkbox"
@@ -1081,7 +1276,7 @@ export default function App() {
                                 setSelectedSplitWith(selectedSplitWith.filter(id => id !== r.id));
                               }
                             }}
-                            className="w-6 h-6 rounded-lg border-white/10 bg-transparent text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
+                            className={cn("w-6 h-6 rounded-lg bg-transparent text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0", isDarkTheme ? "border-white/10" : "border-black/20")}
                           />
                         </label>
                       ))}
@@ -1091,7 +1286,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => setShowExpenseModal(false)}
-                      className="flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all"
+                      className={cn("flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all", signedInSoftSurfaceClass, signedInSoftSurfaceHoverClass)}
                     >
                       Cancel
                     </button>
@@ -1125,7 +1320,7 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-md bg-[#111] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+              className={cn("relative w-full max-w-md rounded-[3rem] overflow-hidden", signedInModalClass)}
             >
               <div className="p-10">
                 <div className="flex items-center justify-between mb-10">
@@ -1133,15 +1328,15 @@ export default function App() {
                     <h2 className="text-3xl font-bold tracking-tight">
                       Log payment
                     </h2>
-                    <p className="text-white/30 text-sm font-medium mt-1">
+                    <p className={signedInModalMutedClass + " text-sm font-medium mt-1"}>
                       Record a settlement between roommates
                     </p>
                   </div>
                   <button
                     onClick={() => setShowPaymentModal(false)}
-                    className="p-3 hover:bg-white/5 rounded-full transition-colors"
+                    className={cn("p-3 rounded-full transition-colors", signedInSoftSurfaceHoverClass)}
                   >
-                    <X className="w-6 h-6 text-white/20" />
+                    <X className={cn("w-6 h-6", signedInModalTextClass)} />
                   </button>
                 </div>
 
@@ -1186,7 +1381,7 @@ export default function App() {
                 >
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-3">
-                      <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                         From*
                       </label>
                       <select 
@@ -1200,7 +1395,7 @@ export default function App() {
                             if (other) setPaymentTo(other.id);
                           }
                         }}
-                        className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none"
+                        className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none", signedInModalSelectClass)}
                       >
                         {roommates.map((r) => (
                           <option key={r.id} value={r.id}>{r.name}</option>
@@ -1208,7 +1403,7 @@ export default function App() {
                       </select>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                         To*
                       </label>
                       <select 
@@ -1222,7 +1417,7 @@ export default function App() {
                             if (other) setPaymentFrom(other.id);
                           }
                         }}
-                        className="w-full bg-[#111] text-white border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-[#1A1A1A] transition-all text-lg font-medium appearance-none"
+                        className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none", signedInModalSelectClass)}
                       >
                         {roommates.map((r) => (
                           <option key={r.id} value={r.id} disabled={r.id === paymentFrom}>{r.name}</option>
@@ -1231,11 +1426,11 @@ export default function App() {
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                    <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                       Amount*
                     </label>
                     <div className="relative">
-                      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 text-lg">
+                      <span className={cn("absolute left-6 top-1/2 -translate-y-1/2 text-lg", signedInModalTextClass)}>
                         $
                       </span>
                       <input
@@ -1244,25 +1439,25 @@ export default function App() {
                         step="0.01"
                         required
                         placeholder="0.00"
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium placeholder:text-white/10"
+                        className={cn("w-full rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium", signedInModalInputClass)}
                       />
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                    <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                       Note (Optional)
                     </label>
                     <textarea
                       name="note"
                       placeholder="Add a note..."
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-lg font-medium h-32 resize-none placeholder:text-white/10"
+                      className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium h-32 resize-none", signedInModalInputClass)}
                     />
                   </div>
                   <div className="flex gap-4 pt-6">
                     <button
                       type="button"
                       onClick={() => setShowPaymentModal(false)}
-                      className="flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all"
+                      className={cn("flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all", signedInSoftSurfaceClass, signedInSoftSurfaceHoverClass)}
                     >
                       Cancel
                     </button>
@@ -1294,7 +1489,7 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="relative w-full max-w-md bg-[#111] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+              className={cn("relative w-full max-w-md rounded-[3rem] overflow-hidden", signedInModalClass)}
             >
               <div className="p-10">
                 <div className="flex items-center justify-between mb-8">
@@ -1302,21 +1497,21 @@ export default function App() {
                     <h2 className="text-3xl font-bold tracking-tight">
                       Request Payment
                     </h2>
-                    <p className="text-white/30 text-sm font-medium mt-1">
+                    <p className={signedInModalMutedClass + " text-sm font-medium mt-1"}>
                       Send a friendly reminder to {selectedRoommateForRequest.name}
                     </p>
                   </div>
                   <button
                     onClick={() => setShowRequestModal(false)}
-                    className="p-3 hover:bg-white/5 rounded-full transition-colors"
+                    className={cn("p-3 rounded-full transition-colors", signedInSoftSurfaceHoverClass)}
                   >
-                    <X className="w-6 h-6 text-white/20" />
+                    <X className={cn("w-6 h-6", signedInModalTextClass)} />
                   </button>
                 </div>
 
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                    <p className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
                       Select a template
                     </p>
                     <div className="grid grid-cols-1 gap-3">
@@ -1332,9 +1527,9 @@ export default function App() {
                             handleSendRequest(selectedRoommateForRequest, template);
                             setCustomRequestMessage("");
                           }}
-                          className="text-left p-5 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 group"
+                          className={cn("text-left p-5 rounded-2xl transition-all border border-transparent group", signedInModalTemplateButtonClass)}
                         >
-                          <p className="text-sm text-white/70 group-hover:text-white transition-colors">
+                          <p className={cn("text-sm transition-colors", isDarkTheme ? "text-white/70 group-hover:text-white" : "text-black/70 group-hover:text-black")}>
                             {template}
                           </p>
                         </button>
@@ -1344,10 +1539,12 @@ export default function App() {
 
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div className="w-full border-t border-white/5"></div>
+                      <div className={cn("w-full border-t", signedInModalDividerClass)}></div>
                     </div>
                     <div className="relative flex justify-center text-xs uppercase tracking-widest">
-                      <span className="bg-[#111] px-4 text-white/20 font-bold">Or write your own</span>
+                      <span className={cn("px-4 font-bold", isDarkTheme ? "bg-[#111] text-white/20" : "bg-white text-black/30")}>
+                        Or write your own
+                      </span>
                     </div>
                   </div>
 
@@ -1356,7 +1553,7 @@ export default function App() {
                       value={customRequestMessage}
                       onChange={(e) => setCustomRequestMessage(e.target.value)}
                       placeholder="Type a custom message..."
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-sm font-medium h-24 resize-none placeholder:text-white/10"
+                      className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-sm font-medium h-24 resize-none", signedInModalInputClass)}
                     />
                     <button
                       disabled={!customRequestMessage.trim()}
@@ -1364,7 +1561,12 @@ export default function App() {
                         handleSendRequest(selectedRoommateForRequest, customRequestMessage);
                         setCustomRequestMessage("");
                       }}
-                      className="w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-widest bg-white/10 hover:bg-indigo-500 text-white disabled:opacity-50 disabled:hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                      className={cn(
+                        "w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-widest text-white disabled:opacity-50 transition-all flex items-center justify-center gap-2",
+                        isDarkTheme
+                          ? "bg-white/10 hover:bg-indigo-500 disabled:hover:bg-white/10"
+                          : "bg-black/10 hover:bg-indigo-500 disabled:hover:bg-black/10"
+                      )}
                     >
                       <Send className="w-4 h-4" />
                       Send Custom Message
@@ -1372,10 +1574,10 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-white/5">
+                <div className={cn("mt-8 pt-8 border-t", signedInModalDividerClass)}>
                    <button
                     onClick={() => setShowRequestModal(false)}
-                    className="w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all"
+                    className={cn("w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all", signedInSoftSurfaceClass, signedInSoftSurfaceHoverClass)}
                   >
                     Cancel
                   </button>
