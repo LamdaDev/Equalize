@@ -229,23 +229,6 @@ export default function App() {
     setShowRequestModal(false);
   };
 
-  const openRequestPaymentModal = () => {
-    const defaultRoommateId =
-      roommatesWithStats.find((r) => r.id !== "1" && r.balance > 0)?.id ??
-      roommates.find((r) => r.id !== "1")?.id;
-    const defaultRoommate = defaultRoommateId
-      ? roommates.find((r) => r.id === defaultRoommateId) ?? null
-      : null;
-
-    if (!defaultRoommate) {
-      addNotification("No roommate available for a payment request yet.");
-      return;
-    }
-
-    setSelectedRoommateForRequest(defaultRoommate);
-    setShowRequestModal(true);
-  };
-
   const getCategoryIcon = (category: Category) => {
     switch (category) {
       case "Groceries":
@@ -1018,22 +1001,6 @@ export default function App() {
                   </div>
                   <span className="text-base font-bold tracking-tight">Log Payment</span>
                 </motion.button>
-                <motion.button
-                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                  transition={{ delay: 0.1 }}
-                  onClick={() => {
-                    openRequestPaymentModal();
-                    setIsPlusMenuOpen(false);
-                  }}
-                  className={cn("flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-colors whitespace-nowrap", signedInFloatingButtonClass)}
-                >
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                    <Send className="w-5 h-5 text-amber-400" />
-                  </div>
-                  <span className="text-base font-bold tracking-tight">Request Payment</span>
-                </motion.button>
               </div>
             )}
           </AnimatePresence>
@@ -1134,7 +1101,7 @@ export default function App() {
       {/* Expense Modal */}
       <AnimatePresence>
         {showExpenseModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-4 sm:p-6 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1147,9 +1114,9 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className={cn("relative w-full max-w-md rounded-[3rem] overflow-hidden", signedInModalClass)}
+              className={cn("relative my-4 sm:my-0 w-full max-w-md max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] rounded-[3rem] overflow-hidden", signedInModalClass)}
             >
-              <div className="p-10">
+              <div className="p-6 sm:p-10 overflow-y-auto max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]">
                 <div className="flex items-center justify-between mb-10">
                   <div>
                     <h2 className="text-3xl font-bold tracking-tight">
@@ -1358,6 +1325,7 @@ export default function App() {
                       to: toId,
                       amount,
                       date: new Date().toISOString(),
+                      method: "manual",
                       note,
                     };
 
@@ -1477,7 +1445,7 @@ export default function App() {
       {/* Request Modal */}
       <AnimatePresence>
         {showRequestModal && selectedRoommateForRequest && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[150] flex items-start sm:items-center justify-center p-4 sm:p-6 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1489,9 +1457,9 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className={cn("relative w-full max-w-md rounded-[3rem] overflow-hidden", signedInModalClass)}
+              className={cn("relative my-4 sm:my-0 w-full max-w-md max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] rounded-[3rem] overflow-hidden", signedInModalClass)}
             >
-              <div className="p-10">
+              <div className="p-6 sm:p-10 overflow-y-auto max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]">
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h2 className="text-3xl font-bold tracking-tight">
