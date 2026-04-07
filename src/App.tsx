@@ -156,6 +156,7 @@ export default function App() {
     if (totalSpentMonth === 0) return "No expenses logged yet this month.";
 
     const you = contributionData.find(d => d.name === "You");
+    signedInPercentDiff;
     
     // Find who is most behind and most ahead
     const mostBehind = [...contributionData].sort((a, b) => a.percentDiff - b.percentDiff)[0];
@@ -164,9 +165,9 @@ export default function App() {
     if (you && you.percentDiff > 10) {
       return (
         <>
-          You've contributed <span className="text-white font-bold">{you.percentage}%</span> of costs this month. 
+          You've contributed <span className={signedInPercentDiff}>{you.percentage}%</span> of costs this month. 
           {mostBehind.name !== "You" ? (
-            <> {mostBehind.name} is currently <span className="text-white font-bold">{Math.abs(mostBehind.percentDiff)}%</span> below the average contribution. Consider a settlement to rebalance.</>
+            <> {mostBehind.name} is currently <span className={signedInPercentDiff}>{Math.abs(mostBehind.percentDiff)}%</span> below the average contribution. Consider a settlement to rebalance.</>
           ) : (
             <> You are well ahead of the average!</>
           )}
@@ -177,9 +178,9 @@ export default function App() {
     if (you && you.percentDiff < -10) {
       return (
         <>
-          You're currently <span className="text-white font-bold">{Math.abs(you.percentDiff)}%</span> below the average contribution. 
+          You're currently <span className={signedInPercentDiff}>{Math.abs(you.percentDiff)}%</span> below the average contribution. 
           {mostAhead.name !== "You" ? (
-            <> {mostAhead.name} has covered <span className="text-white font-bold">{mostAhead.percentage}%</span> of costs. A quick payment would help even things out.</>
+            <> {mostAhead.name} has covered <span className={signedInPercentDiff}>{mostAhead.percentage}%</span> of costs. A quick payment would help even things out.</>
           ) : (
             <> Time to pitch in for the next few household runs!</>
           )}
@@ -191,7 +192,7 @@ export default function App() {
     if (mostBehind.percentDiff < -15) {
       return (
         <>
-          Your contributions are balanced, but <span className="text-white font-bold">{mostBehind.name}</span> is currently <span className="text-white font-bold">{Math.abs(mostBehind.percentDiff)}%</span> behind the average. A friendly reminder might help.
+          Your contributions are balanced, but <span className={signedInPercentDiff}>{mostBehind.name}</span> is currently <span className={signedInPercentDiff}>{Math.abs(mostBehind.percentDiff)}%</span> behind the average. A friendly reminder might help.
         </>
       );
     }
@@ -199,7 +200,7 @@ export default function App() {
     if (mostAhead.percentDiff > 15) {
       return (
         <>
-          Everything looks fair for you, but <span className="text-white font-bold">{mostAhead.name}</span> has contributed <span className="text-white font-bold">{mostAhead.percentage}%</span> of costs. They've been doing the heavy lifting lately!
+          Everything looks fair for you, but <span className={signedInPercentDiff}>{mostAhead.name}</span> has contributed <span className={signedInPercentDiff}>{mostAhead.percentage}%</span> of costs. They've been doing the heavy lifting lately!
         </>
       );
     }
@@ -298,6 +299,7 @@ export default function App() {
   const signedInRecentActivityTemplateClass = isDarkTheme ? "bg-white/5 hover:bg-white/10 border-transparent hover:border-white/5" : "bg-black/5 hover:bg-black/10 border-transparent hover:border-black/10";
   const signedInRecentActivityDividerClass = isDarkTheme ? "border-white/5" : "border-black/10";
   const signedInModalDividerClass = isDarkTheme ? "border-white/5" : "border-black/10";
+  const signedInPercentDiff = isDarkTheme ? "text-white font-bold" : "text-black font-bold";
 
   if (!isLoggedIn) {
     return (
