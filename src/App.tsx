@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Plus,
@@ -18,8 +18,8 @@ import {
   Receipt,
   Wallet,
   LogOut,
-  Moon,
   Sun,
+  Moon,
 } from "lucide-react";
 import { cn } from "./lib/utils";
 import { ROOMMATES, EXPENSES, PAYMENTS } from "./data/mockData";
@@ -33,73 +33,154 @@ import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string }>({
-    name: "Chris C.",
-    email: "rjmauricio3@gmail.com",
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    const saved = localStorage.getItem("equalize_isLoggedIn");
+    return saved ? JSON.parse(saved) : false;
   });
-  const [authMode, setAuthMode] = useState<"landing" | "login" | "signup" | "features" | "about" | "contact">("landing");
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const [currentUser, setCurrentUser] = useState<{
+    name: string;
+    email: string;
+  }>(() => {
+    const saved = localStorage.getItem("equalize_currentUser");
+    return saved
+      ? JSON.parse(saved)
+      : {
+          name: "Chris C.",
+          email: "rjmauricio3@gmail.com",
+        };
+  });
+  const [publicPage, setPublicPage] = useState<
+    "landing" | "features" | "about" | "contact" | "login" | "signup"
+  >("landing");
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "history" | "messages" | "profile"
   >("dashboard");
-  const [showConditionB, setShowConditionB] = useState(true);
+  const [showConditionB, setShowConditionB] = useState<boolean>(() => {
+    const saved = localStorage.getItem("equalize_showConditionB");
+    return saved ? JSON.parse(saved) : true;
+  });
+  const [isDarkTheme, setIsDarkTheme] = useState<boolean>(() => {
+    const saved = localStorage.getItem("equalize_isDarkTheme");
+    return saved ? JSON.parse(saved) : true;
+  });
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
-  const [roommates] = useState<Roommate[]>(ROOMMATES);
-  const [expenses, setExpenses] = useState<Expense[]>(EXPENSES);
-  const [payments, setPayments] = useState<Payment[]>(PAYMENTS);
-  const [selectedSplitWith, setSelectedSplitWith] = useState<string[]>(ROOMMATES.map(r => r.id));
+  const [roommates, setRoommates] = useState<Roommate[]>(() => {
+    const saved = localStorage.getItem("equalize_roommates");
+    return saved ? JSON.parse(saved) : ROOMMATES;
+  });
+  const [expenses, setExpenses] = useState<Expense[]>(() => {
+    const saved = localStorage.getItem("equalize_expenses");
+    return saved ? JSON.parse(saved) : EXPENSES;
+  });
+  const [payments, setPayments] = useState<Payment[]>(() => {
+    const saved = localStorage.getItem("equalize_payments");
+    return saved ? JSON.parse(saved) : PAYMENTS;
+  });
+  const [selectedSplitWith, setSelectedSplitWith] = useState<string[]>(
+    ROOMMATES.map((r) => r.id),
+  );
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const [selectedRoommateForRequest, setSelectedRoommateForRequest] = useState<Roommate | null>(null);
+  const [selectedRoommateForRequest, setSelectedRoommateForRequest] =
+    useState<Roommate | null>(null);
   const [customRequestMessage, setCustomRequestMessage] = useState("");
   const [paymentFrom, setPaymentFrom] = useState("1");
   const [paymentTo, setPaymentTo] = useState("2");
-  const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
-  const [recentActivities, setRecentActivities] = useState<{
-    id: string;
-    type: "request" | "settlement";
-    from: string;
-    to: string;
-    message: string;
-    date: string;
-  }[]>([
+  const [notifications, setNotifications] = useState<
+    { id: string; message: string }[]
+  >([]);
+  const [recentActivities, setRecentActivities] = useState<
     {
-      id: "1",
-      type: "settlement",
-      from: "2",
-      to: "1",
-      message: "Thanks for the groceries!",
-      date: new Date(Date.now() - 7200000).toISOString(),
-    },
-    {
-      id: "2",
-      type: "request",
-      from: "1",
-      to: "3",
-      message: "Settling up utilities...",
-      date: new Date(Date.now() - 86400000).toISOString(),
-    },
-  ]);
+      id: string;
+      type: "request" | "settlement";
+      from: string;
+      to: string;
+      message: string;
+      date: string;
+    }[]
+  >(() => {
+    const saved = localStorage.getItem("equalize_recentActivities");
+    return saved
+      ? JSON.parse(saved)
+      : [
+          {
+            id: "1",
+            type: "settlement",
+            from: "2",
+            to: "1",
+            message: "Thanks for the groceries!",
+            date: new Date(Date.now() - 7200000).toISOString(),
+          },
+          {
+            id: "2",
+            type: "request",
+            from: "1",
+            to: "3",
+            message: "Settling up utilities...",
+            date: new Date(Date.now() - 86400000).toISOString(),
+          },
+        ];
+  });
+
+  // Persistence Effects
+  useEffect(() => {
+    localStorage.setItem("equalize_isLoggedIn", JSON.stringify(isLoggedIn));
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    localStorage.setItem("equalize_currentUser", JSON.stringify(currentUser));
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem("equalize_expenses", JSON.stringify(expenses));
+  }, [expenses]);
+
+  useEffect(() => {
+    localStorage.setItem("equalize_payments", JSON.stringify(payments));
+  }, [payments]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "equalize_recentActivities",
+      JSON.stringify(recentActivities),
+    );
+  }, [recentActivities]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "equalize_showConditionB",
+      JSON.stringify(showConditionB),
+    );
+  }, [showConditionB]);
+
+  useEffect(() => {
+    localStorage.setItem("equalize_isDarkTheme", JSON.stringify(isDarkTheme));
+  }, [isDarkTheme]);
+
+  useEffect(() => {
+    localStorage.setItem("equalize_roommates", JSON.stringify(roommates));
+  }, [roommates]);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setAuthMode("landing");
+    setPublicPage("landing");
     setActiveTab("dashboard");
     setIsPlusMenuOpen(false);
   };
 
   // Dynamic calculations
-  const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  
+  const sortedExpenses = [...expenses].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+
   const roommatesWithStats = roommates.map((r) => {
     let contributionTotal = 0;
     let bilateralBalance = 0; // How much this roommate owes "You" (positive) or "You" owe them (negative)
 
     expenses.forEach((e) => {
       const share = e.amount / e.splitWith.length;
-      
+
       // Calculate contribution total for this roommate
       if (e.paidBy === r.id) {
         contributionTotal += e.amount;
@@ -134,8 +215,15 @@ export default function App() {
     return { ...r, contributionTotal, balance: bilateralBalance };
   });
 
-  const totalOwedToYou = roommatesWithStats.reduce((acc, r) => r.id !== "1" && r.balance > 0 ? acc + r.balance : acc, 0);
-  const totalYouOwe = roommatesWithStats.reduce((acc, r) => r.id !== "1" && r.balance < 0 ? acc + Math.abs(r.balance) : acc, 0);
+  const totalOwedToYou = roommatesWithStats.reduce(
+    (acc, r) => (r.id !== "1" && r.balance > 0 ? acc + r.balance : acc),
+    0,
+  );
+  const totalYouOwe = roommatesWithStats.reduce(
+    (acc, r) =>
+      r.id !== "1" && r.balance < 0 ? acc + Math.abs(r.balance) : acc,
+    0,
+  );
   const totalSpentMonth = expenses.reduce((acc, e) => acc + e.amount, 0);
   const averageContribution = totalSpentMonth / roommates.length;
 
@@ -143,31 +231,62 @@ export default function App() {
     name: r.name === "You" ? "You" : r.name,
     initials: r.initials,
     value: r.contributionTotal,
-    percentage: totalSpentMonth > 0 
-      ? Math.round((r.contributionTotal / totalSpentMonth) * 100)
-      : 0,
+    percentage:
+      totalSpentMonth > 0
+        ? Math.round((r.contributionTotal / totalSpentMonth) * 100)
+        : 0,
     diffFromAvg: r.contributionTotal - averageContribution,
-    percentDiff: averageContribution > 0 
-      ? Math.round(((r.contributionTotal - averageContribution) / averageContribution) * 100)
-      : 0,
+    percentDiff:
+      averageContribution > 0
+        ? Math.round(
+            ((r.contributionTotal - averageContribution) /
+              averageContribution) *
+              100,
+          )
+        : 0,
   }));
 
   const getFairnessInsight = () => {
     if (totalSpentMonth === 0) return "No expenses logged yet this month.";
 
-    const you = contributionData.find(d => d.name === "You");
-    signedInPercentDiff;
-    
+    const you = contributionData.find((d) => d.name === "You");
+
     // Find who is most behind and most ahead
-    const mostBehind = [...contributionData].sort((a, b) => a.percentDiff - b.percentDiff)[0];
-    const mostAhead = [...contributionData].sort((a, b) => b.percentDiff - a.percentDiff)[0];
+    const mostBehind = [...contributionData].sort(
+      (a, b) => a.percentDiff - b.percentDiff,
+    )[0];
+    const mostAhead = [...contributionData].sort(
+      (a, b) => b.percentDiff - a.percentDiff,
+    )[0];
 
     if (you && you.percentDiff > 10) {
       return (
         <>
-          You've contributed <span className={signedInPercentDiff}>{you.percentage}%</span> of costs this month. 
+          You've contributed{" "}
+          <span
+            className={cn(
+              "font-bold",
+              isDarkTheme ? "text-white" : "text-black",
+            )}
+          >
+            {you.percentage}%
+          </span>{" "}
+          of costs this month.
           {mostBehind.name !== "You" ? (
-            <> {mostBehind.name} is currently <span className={signedInPercentDiff}>{Math.abs(mostBehind.percentDiff)}%</span> below the average contribution. Consider a settlement to rebalance.</>
+            <>
+              {" "}
+              {mostBehind.name} is currently{" "}
+              <span
+                className={cn(
+                  "font-bold",
+                  isDarkTheme ? "text-white" : "text-black",
+                )}
+              >
+                {Math.abs(mostBehind.percentDiff)}%
+              </span>{" "}
+              below the average contribution. Consider a settlement to
+              rebalance.
+            </>
           ) : (
             <> You are well ahead of the average!</>
           )}
@@ -178,9 +297,30 @@ export default function App() {
     if (you && you.percentDiff < -10) {
       return (
         <>
-          You're currently <span className={signedInPercentDiff}>{Math.abs(you.percentDiff)}%</span> below the average contribution. 
+          You're currently{" "}
+          <span
+            className={cn(
+              "font-bold",
+              isDarkTheme ? "text-white" : "text-black",
+            )}
+          >
+            {Math.abs(you.percentDiff)}%
+          </span>{" "}
+          below the average contribution.
           {mostAhead.name !== "You" ? (
-            <> {mostAhead.name} has covered <span className={signedInPercentDiff}>{mostAhead.percentage}%</span> of costs. A quick payment would help even things out.</>
+            <>
+              {" "}
+              {mostAhead.name} has covered{" "}
+              <span
+                className={cn(
+                  "font-bold",
+                  isDarkTheme ? "text-white" : "text-black",
+                )}
+              >
+                {mostAhead.percentage}%
+              </span>{" "}
+              of costs. A quick payment would help even things out.
+            </>
           ) : (
             <> Time to pitch in for the next few household runs!</>
           )}
@@ -192,7 +332,25 @@ export default function App() {
     if (mostBehind.percentDiff < -15) {
       return (
         <>
-          Your contributions are balanced, but <span className={signedInPercentDiff}>{mostBehind.name}</span> is currently <span className={signedInPercentDiff}>{Math.abs(mostBehind.percentDiff)}%</span> behind the average. A friendly reminder might help.
+          Your contributions are balanced, but{" "}
+          <span
+            className={cn(
+              "font-bold",
+              isDarkTheme ? "text-white" : "text-black",
+            )}
+          >
+            {mostBehind.name}
+          </span>{" "}
+          is currently{" "}
+          <span
+            className={cn(
+              "font-bold",
+              isDarkTheme ? "text-white" : "text-black",
+            )}
+          >
+            {Math.abs(mostBehind.percentDiff)}%
+          </span>{" "}
+          behind the average. A friendly reminder might help.
         </>
       );
     }
@@ -200,7 +358,25 @@ export default function App() {
     if (mostAhead.percentDiff > 15) {
       return (
         <>
-          Everything looks fair for you, but <span className={signedInPercentDiff}>{mostAhead.name}</span> has contributed <span className={signedInPercentDiff}>{mostAhead.percentage}%</span> of costs. They've been doing the heavy lifting lately!
+          Everything looks fair for you, but{" "}
+          <span
+            className={cn(
+              "font-bold",
+              isDarkTheme ? "text-white" : "text-black",
+            )}
+          >
+            {mostAhead.name}
+          </span>{" "}
+          has contributed{" "}
+          <span
+            className={cn(
+              "font-bold",
+              isDarkTheme ? "text-white" : "text-black",
+            )}
+          >
+            {mostAhead.percentage}%
+          </span>{" "}
+          of costs. They've been doing the heavy lifting lately!
         </>
       );
     }
@@ -210,9 +386,9 @@ export default function App() {
 
   const addNotification = (message: string) => {
     const id = Date.now().toString();
-    setNotifications(prev => [...prev, { id, message }]);
+    setNotifications((prev) => [...prev, { id, message }]);
     setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id));
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
     }, 4000);
   };
 
@@ -239,143 +415,91 @@ export default function App() {
       case "Household":
         return <Home className="w-4 h-4" />;
       case "Rent":
-        return <DollarSign className="w-4 h-4"/>;
+        return <DollarSign className="w-4 h-4" />;
       default:
         return <MoreHorizontal className="w-4 h-4" />;
     }
   };
 
-  const signedInPageClass = cn(
-    "min-h-screen font-sans selection:bg-indigo-500/30 pb-32",
-    isDarkTheme ? "bg-[#0A0A0A] text-white" : "bg-white text-black"
-  );
-  const signedInNavClass = cn(
-    "fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b px-6 py-4 flex items-center justify-between",
-    isDarkTheme ? "bg-[#0A0A0A]/80 border-white/5" : "bg-white/80 border-black/5"
-  );
-  const signedInSurfaceClass = isDarkTheme
-    ? "bg-[#151515] border border-white/5"
-    : "bg-white border border-black/10 shadow-sm";
-  const signedInSurfaceHoverClass = isDarkTheme
-    ? "hover:border-white/10"
-    : "hover:border-black/20";
-  const signedInMutedTextClass = isDarkTheme ? "text-white/40" : "text-black/50";
-  const signedInSubtleTextClass = isDarkTheme ? "text-white/30" : "text-black/40";
-  const signedInIconSurfaceClass = isDarkTheme
-    ? "bg-white/5 border-white/5 text-white/40"
-    : "bg-black/5 border-black/10 text-black/50";
-  const signedInSoftSurfaceClass = isDarkTheme ? "bg-white/5" : "bg-black/5";
-  const signedInSoftSurfaceHoverClass = isDarkTheme ? "hover:bg-white/10" : "hover:bg-black/10";
-  const signedInButtonTextClass = isDarkTheme ? "text-white" : "text-black";
-  const signedInFloatingBarClass = isDarkTheme
-    ? "bg-[#1A1A1A]/90 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-    : "bg-white/90 border-black/10 shadow-[0_20px_50px_rgba(0,0,0,0.12)]";
-  const signedInFloatingButtonClass = isDarkTheme
-    ? "bg-[#1A1A1A] border border-white/10 hover:bg-white/5"
-    : "bg-white border border-black/10 hover:bg-black/5";
-  const signedInFloatingIconClass = isDarkTheme ? "text-white/30 hover:text-white" : "text-black/30 hover:text-black";
-  const signedInFloatingIconActiveClass = isDarkTheme ? "text-indigo-400" : "text-indigo-600";
-  const signedInFloatingPlusClass = isDarkTheme ? "bg-indigo-500 text-white" : "bg-indigo-600 text-white";
-  const signedInFloatingPlusActiveClass = isDarkTheme ? "bg-white text-indigo-500 rotate-45" : "bg-black text-white rotate-45";
-  const signedInModalClass = isDarkTheme
-    ? "bg-[#111] border border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
-    : "bg-white border border-black/10 shadow-[0_50px_100px_rgba(0,0,0,0.18)]";
-  const signedInModalMutedClass = isDarkTheme ? "text-white/30" : "text-black/50";
-  const signedInModalTextClass = isDarkTheme ? "text-white/20" : "text-black/30";
-  const signedInModalInputClass = isDarkTheme
-    ? "bg-white/5 border-white/10 text-white placeholder:text-white/10 focus:bg-white/[0.08]"
-    : "bg-black/5 border-black/10 text-black placeholder:text-black/25 focus:bg-black/[0.08]";
-  const signedInModalSelectClass = isDarkTheme
-    ? "bg-[#111] text-white border-white/10 focus:bg-[#1A1A1A]"
-    : "bg-white text-black border-black/10 focus:bg-black/[0.04]";
-  const signedInModalOptionClass = isDarkTheme
-    ? "bg-[#111] text-white"
-    : "bg-white text-black";
-  const signedInModalTemplateButtonClass = isDarkTheme
-    ? "bg-white/5 hover:bg-white/10 border-transparent hover:border-white/5"
-    : "bg-black/5 hover:bg-black/10 border-transparent hover:border-black/10";
-  const signedInRecentActivityCardClass = isDarkTheme ? "bg-[#151515] border border-white/5" : "bg-white border border-black/10 shadow-sm";
-  const signedInRecentActivityMutedClass = isDarkTheme ? "text-white/40" : "text-black/50";
-  const signedInRecentActivityTemplateClass = isDarkTheme ? "bg-white/5 hover:bg-white/10 border-transparent hover:border-white/5" : "bg-black/5 hover:bg-black/10 border-transparent hover:border-black/10";
-  const signedInRecentActivityDividerClass = isDarkTheme ? "border-white/5" : "border-black/10";
-  const signedInModalDividerClass = isDarkTheme ? "border-white/5" : "border-black/10";
-  const signedInPercentDiff = isDarkTheme ? "text-white font-bold" : "text-black font-bold";
-
   if (!isLoggedIn) {
     return (
       <AnimatePresence mode="wait">
-        {authMode === "landing" ? (
+        {publicPage === "landing" && (
           <motion.div
             key="landing"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="min-h-screen"
           >
             <LandingPage
-              onLogin={() => setAuthMode("login")}
-              onSignUp={() => setAuthMode("signup")}
-              onNavigate={(page) => setAuthMode(page)}
+              onLogin={() => setPublicPage("login")}
+              onSignUp={() => setPublicPage("signup")}
+              onNavigate={(page) => setPublicPage(page as any)}
               isDark={isDarkTheme}
               onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
             />
           </motion.div>
-        ) : authMode === "features" ? (
+        )}
+        {publicPage === "features" && (
           <motion.div
             key="features"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="min-h-screen"
           >
             <FeaturesPage
-              onBack={() => setAuthMode("landing")}
+              onBack={() => setPublicPage("landing")}
               isDark={isDarkTheme}
               onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
-              onNavigate={(page) => setAuthMode(page)}
-              onLogin={() => setAuthMode("login")}
-              onSignUp={() => setAuthMode("signup")}
+              onNavigate={(page) => setPublicPage(page as any)}
+              onLogin={() => setPublicPage("login")}
+              onSignUp={() => setPublicPage("signup")}
             />
           </motion.div>
-        ) : authMode === "about" ? (
+        )}
+        {publicPage === "about" && (
           <motion.div
             key="about"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="min-h-screen"
           >
             <AboutPage
-              onBack={() => setAuthMode("landing")}
+              onBack={() => setPublicPage("landing")}
               isDark={isDarkTheme}
               onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
-              onNavigate={(page) => setAuthMode(page)}
-              onLogin={() => setAuthMode("login")}
-              onSignUp={() => setAuthMode("signup")}
+              onNavigate={(page) => setPublicPage(page as any)}
+              onLogin={() => setPublicPage("login")}
+              onSignUp={() => setPublicPage("signup")}
             />
           </motion.div>
-        ) : authMode === "contact" ? (
+        )}
+        {publicPage === "contact" && (
           <motion.div
             key="contact"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="min-h-screen"
           >
             <ContactPage
-              onBack={() => setAuthMode("landing")}
+              onBack={() => setPublicPage("landing")}
               isDark={isDarkTheme}
               onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
-              onNavigate={(page) => setAuthMode(page)}
-              onLogin={() => setAuthMode("login")}
-              onSignUp={() => setAuthMode("signup")}
+              onNavigate={(page) => setPublicPage(page as any)}
+              onLogin={() => setPublicPage("login")}
+              onSignUp={() => setPublicPage("signup")}
             />
           </motion.div>
-        ) : authMode === "login" ? (
+        )}
+        {publicPage === "login" && (
           <motion.div
             key="login"
             initial={{ opacity: 0, x: -20 }}
@@ -384,22 +508,21 @@ export default function App() {
             transition={{ duration: 0.3 }}
             className="min-h-screen"
           >
-            <LogInAuth 
+            <LogInAuth
+              isDark={isDarkTheme}
+              onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
               onLogin={(email) => {
                 setIsLoggedIn(true);
-                // If it's the test account or any login, set to test info as requested
-                // unless we want to be smarter, but the user said "otherwise if they login... info is test"
                 setCurrentUser({
                   name: "Test User",
                   email: email || "test@email.com",
                 });
-              }} 
-              onSignUp={() => setAuthMode("signup")}
-              onGoToLanding={() => setAuthMode("landing")}
-              isDark={isDarkTheme}
+              }}
+              onSignUp={() => setPublicPage("signup")}
             />
           </motion.div>
-        ) : (
+        )}
+        {publicPage === "signup" && (
           <motion.div
             key="signup"
             initial={{ opacity: 0, x: 20 }}
@@ -408,14 +531,14 @@ export default function App() {
             transition={{ duration: 0.3 }}
             className="min-h-screen"
           >
-            <SignUpAuth 
+            <SignUpAuth
+              isDark={isDarkTheme}
+              onToggleTheme={() => setIsDarkTheme(!isDarkTheme)}
               onSignUpSuccess={(name, email) => {
                 setIsLoggedIn(true);
                 setCurrentUser({ name, email });
               }}
-              onBackToLogin={() => setAuthMode("login")}
-              onGoToLanding={() => setAuthMode("landing")}
-              isDark={isDarkTheme}
+              onBackToLogin={() => setPublicPage("login")}
             />
           </motion.div>
         )}
@@ -424,65 +547,89 @@ export default function App() {
   }
 
   return (
-    <div className={signedInPageClass}>
+    <div
+      className={cn(
+        "min-h-screen font-sans selection:bg-indigo-500/30 pb-32 transition-colors duration-300",
+        isDarkTheme ? "bg-[#0A0A0A] text-white" : "bg-white text-black",
+      )}
+    >
       {/* Top Navigation */}
-      <nav className={signedInNavClass}>
+      <nav
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b px-6 py-4 flex items-center justify-between transition-colors duration-300",
+          isDarkTheme
+            ? "bg-[#0A0A0A]/80 border-white/5"
+            : "bg-white/80 border-black/5",
+        )}
+      >
         <div className="flex items-center gap-3">
-          {/* <Logo className="w-8 h-8 rounded-lg" /> */}
-          <button
-            onClick={() => {
-              setIsLoggedIn(false);
-              setAuthMode("landing");
-              setActiveTab("dashboard");
-            }}
-            className="text-xl font-bold tracking-tight"
-          >
-            Equalize
-          </button>
+          <span className="text-xl font-bold tracking-tight">Equalize</span>
         </div>
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsDarkTheme(!isDarkTheme)}
+            className={cn(
+              "p-2 rounded-xl transition-all border",
+              isDarkTheme
+                ? "bg-white/5 border-white/10 text-white/40 hover:text-white"
+                : "bg-black/5 border-black/10 text-black/70 hover:text-black",
+            )}
+            title={isDarkTheme ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {isDarkTheme ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+          </button>
           <button
             onClick={() => setShowConditionB(!showConditionB)}
             className={cn(
               "text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-2 rounded-xl transition-all border flex items-center gap-2",
-              showConditionB 
-                ? "bg-indigo-500/20 border-indigo-500/30 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+              showConditionB
+                ? isDarkTheme
+                  ? "bg-indigo-500/20 border-indigo-500/30 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                  : "bg-indigo-50 border-indigo-200 text-indigo-600 shadow-sm"
                 : isDarkTheme
                   ? "bg-white/5 border-white/10 text-white/40 hover:text-white"
-                  : "bg-black/5 border-black/10 text-black/50 hover:text-black"
+                  : "bg-black/5 border-black/10 text-black/60 hover:text-black",
             )}
           >
-            <div className={cn(
-              "w-2 h-2 rounded-full transition-all",
-              showConditionB ? "bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]" : "bg-white/20"
-            )} />
+            <div
+              className={cn(
+                "w-2 h-2 rounded-full transition-all",
+                showConditionB
+                  ? isDarkTheme
+                    ? "bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]"
+                    : "bg-indigo-600"
+                  : isDarkTheme
+                    ? "bg-white/20"
+                    : "bg-black/20",
+              )}
+            />
             {showConditionB ? "Fairness Mode" : "Baseline Mode"}
-          </button>
-          <button
-            onClick={() => setIsDarkTheme(!isDarkTheme)}
-            title="Toggle theme"
-            className={cn(
-              "p-2 rounded-xl border transition-all",
-              isDarkTheme
-                ? "text-white/80 border-white/10 bg-white/5 hover:text-white hover:bg-white/10"
-                : "text-black/70 border-black/10 bg-black/5 hover:text-black hover:bg-black/10"
-            )}
-          >
-            {isDarkTheme ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           <button
             onClick={handleLogout}
             title="Logout"
-            className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all rounded-xl border border-rose-500/10 bg-rose-500/5 group relative"
+            className={cn(
+              "p-2 transition-all rounded-xl border group relative",
+              isDarkTheme
+                ? "text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/10 bg-rose-500/5"
+                : "text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 bg-rose-50/50",
+            )}
           >
             <LogOut className="w-5 h-5" />
             <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
               LOGOUT
             </span>
           </button>
-          {/* <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-xs font-bold text-white uppercase shadow-lg shadow-indigo-500/20">
-            {currentUser.name.split(" ").map(n => n[0]).join("")}
-          </div> */}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-xs font-bold text-white uppercase shadow-lg shadow-indigo-500/20">
+            {currentUser.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </div>
         </div>
       </nav>
 
@@ -521,7 +668,9 @@ export default function App() {
                   />
                 </svg>
               </div>
-              <span className="text-sm font-bold tracking-tight">{n.message}</span>
+              <span className="text-sm font-bold tracking-tight">
+                {n.message}
+              </span>
             </motion.div>
           ))}
         </AnimatePresence>
@@ -541,35 +690,73 @@ export default function App() {
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
                   Household Dashboard
                 </h1>
-                <p className={signedInMutedTextClass + " text-sm font-medium"}>
+                <p
+                  className={cn(
+                    "text-sm font-medium transition-colors",
+                    isDarkTheme ? "text-white/40" : "text-black/70",
+                  )}
+                >
                   April 2026 • Shared apartment
                 </p>
               </header>
 
               {/* Summary Cards */}
               <div className="grid grid-cols-2 gap-4 mb-10">
-                <div className={cn(signedInSurfaceClass, "p-6 rounded-3xl relative overflow-hidden group") }>
+                <div
+                  className={cn(
+                    "border p-6 rounded-3xl relative overflow-hidden group transition-colors",
+                    isDarkTheme
+                      ? "bg-[#151515] border-white/5"
+                      : "bg-gray-50 border-black/5",
+                  )}
+                >
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <ArrowUpRight className="w-12 h-12" />
                   </div>
-                  <p className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.15em] mb-2"}>
+                  <p
+                    className={cn(
+                      "text-[12px] font-bold uppercase tracking-[0.15em] mb-2 transition-colors",
+                      isDarkTheme ? "text-white/40" : "text-black/70",
+                    )}
+                  >
                     {totalOwedToYou >= totalYouOwe ? "You are owed" : "You owe"}
                   </p>
-                  <p className={cn(
-                    "text-4xl font-bold tracking-tight",
-                    totalOwedToYou >= totalYouOwe ? "text-emerald-400" : "text-rose-400"
-                  )}>
+                  <p
+                    className={cn(
+                      "text-4xl font-bold tracking-tight",
+                      totalOwedToYou >= totalYouOwe
+                        ? "text-emerald-400"
+                        : "text-rose-400",
+                    )}
+                  >
                     ${Math.abs(totalOwedToYou - totalYouOwe).toFixed(2)}
                   </p>
                 </div>
-                <div className={cn(signedInSurfaceClass, "p-6 rounded-3xl relative overflow-hidden group") }>
+                <div
+                  className={cn(
+                    "border p-6 rounded-3xl relative overflow-hidden group transition-colors",
+                    isDarkTheme
+                      ? "bg-[#151515] border-white/5"
+                      : "bg-gray-50 border-black/5",
+                  )}
+                >
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <ShoppingCart className="w-12 h-12" />
                   </div>
-                  <p className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.15em] mb-2"}>
+                  <p
+                    className={cn(
+                      "text-[12px] font-bold uppercase tracking-[0.15em] mb-2 transition-colors",
+                      isDarkTheme ? "text-white/40" : "text-black/70",
+                    )}
+                  >
                     Total this month
                   </p>
-                  <p className="text-4xl font-bold tracking-tight">
+                  <p
+                    className={cn(
+                      "text-4xl font-bold tracking-tight transition-colors",
+                      isDarkTheme ? "text-white" : "text-black",
+                    )}
+                  >
                     ${totalSpentMonth.toFixed(2)}
                   </p>
                 </div>
@@ -585,33 +772,78 @@ export default function App() {
                     className="mb-12"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.2em]"}>
+                      <h2
+                        className={cn(
+                          "text-[12px] font-bold uppercase tracking-[0.2em] transition-colors",
+                          isDarkTheme ? "text-white/40" : "text-black/70",
+                        )}
+                      >
                         Contribution Breakdown - April
                       </h2>
                     </div>
-                    <div className={cn(signedInSurfaceClass, "p-8 rounded-[2rem]") }>
+                    <div
+                      className={cn(
+                        "border p-8 rounded-[2rem] transition-colors",
+                        isDarkTheme
+                          ? "bg-[#151515] border-white/5"
+                          : "bg-gray-50 border-black/5",
+                      )}
+                    >
                       <div className="space-y-8">
                         {contributionData.map((data, idx) => (
                           <div key={idx} className="space-y-3">
                             <div className="flex justify-between items-end">
                               <div className="flex items-center gap-4">
-                                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border", signedInSoftSurfaceClass, isDarkTheme ? "text-white/60 border-white/5" : "text-black/60 border-black/10") }>
+                                <div
+                                  className={cn(
+                                    "w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border transition-colors",
+                                    isDarkTheme
+                                      ? "bg-white/5 text-white/60 border-white/5"
+                                      : "bg-black/5 text-black/60 border-black/5",
+                                  )}
+                                >
                                   {data.initials}
                                 </div>
                                 <div>
-                                  <span className="block font-bold">
+                                  <span
+                                    className={cn(
+                                      "block font-bold transition-colors",
+                                      isDarkTheme
+                                        ? "text-white/90"
+                                        : "text-black/90",
+                                    )}
+                                  >
                                     {data.name}
                                   </span>
-                                  <span className={signedInMutedTextClass + " text-[12px] font-medium tracking-wide"}>
+                                  <span
+                                    className={cn(
+                                      "text-[12px] font-medium tracking-wide transition-colors",
+                                      isDarkTheme
+                                        ? "text-white/40"
+                                        : "text-black/70",
+                                    )}
+                                  >
                                     ${data.value.toFixed(2)} contributed
                                   </span>
                                 </div>
                               </div>
-                              <span className={signedInMutedTextClass + " text-sm font-bold"}>
+                              <span
+                                className={cn(
+                                  "text-sm font-bold transition-colors",
+                                  isDarkTheme
+                                    ? "text-white/60"
+                                    : "text-black/80",
+                                )}
+                              >
                                 {data.percentage}%
                               </span>
                             </div>
-                            <div className={cn("h-3 rounded-full overflow-hidden p-[2px]", signedInSoftSurfaceClass)}>
+                            <div
+                              className={cn(
+                                "h-3 rounded-full overflow-hidden p-[2px] transition-colors",
+                                isDarkTheme ? "bg-white/5" : "bg-black/5",
+                              )}
+                            >
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${data.percentage}%` }}
@@ -624,20 +856,39 @@ export default function App() {
                                   "h-full rounded-full shadow-[0_0_15px_rgba(99,102,241,0.3)]",
                                   idx === 0
                                     ? "bg-indigo-500"
-                                    : "bg-white/20 shadow-none",
+                                    : isDarkTheme
+                                      ? "bg-white/20 shadow-none"
+                                      : "bg-black/20 shadow-none",
                                 )}
                               />
                             </div>
                           </div>
                         ))}
                       </div>
-                      <div className={cn("mt-10 pt-8 border-t", isDarkTheme ? "border-white/5" : "border-black/10")}>
+                      <div
+                        className={cn(
+                          "mt-10 pt-8 border-t transition-colors",
+                          isDarkTheme ? "border-white/5" : "border-black/5",
+                        )}
+                      >
                         <div className="flex gap-4 items-start">
                           <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
                             <Zap className="w-4 h-4 text-indigo-500" />
                           </div>
-                          <p className={signedInMutedTextClass + " text-sm leading-relaxed"}>
-                            <span className="text-indigo-400 font-bold italic mr-1 tracking-tight">
+                          <p
+                            className={cn(
+                              "text-sm leading-relaxed transition-colors",
+                              isDarkTheme ? "text-white/50" : "text-black/75",
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                "font-bold italic mr-1 tracking-tight",
+                                isDarkTheme
+                                  ? "text-indigo-400"
+                                  : "text-indigo-600",
+                              )}
+                            >
                               Fairness Insight:
                             </span>
                             {getFairnessInsight()}
@@ -652,7 +903,12 @@ export default function App() {
               {/* Roommate Balances */}
               <section className="mb-12">
                 <div className="flex items-center justify-between mb-4 px-1">
-                  <h2 className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.2em]"}>
+                  <h2
+                    className={cn(
+                      "text-[12px] font-bold uppercase tracking-[0.2em] transition-colors",
+                      isDarkTheme ? "text-white/40" : "text-black/70",
+                    )}
+                  >
                     Roommate Balances
                   </h2>
                   <button
@@ -668,17 +924,34 @@ export default function App() {
                     .map((r) => (
                       <div
                         key={r.id}
-                        className={cn(signedInSurfaceClass, "p-5 rounded-3xl flex items-center justify-between group transition-all hover:translate-x-1", signedInSurfaceHoverClass)}
+                        className={cn(
+                          "border p-5 rounded-3xl flex items-center justify-between group transition-all hover:translate-x-1",
+                          isDarkTheme
+                            ? "bg-[#151515] border-white/5 hover:border-white/10"
+                            : "bg-gray-50 border-black/5 hover:border-black/10",
+                        )}
                       >
                         <div className="flex items-center gap-5">
-                          <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border", signedInSoftSurfaceClass, isDarkTheme ? "text-white/60 border-white/5" : "text-black/60 border-black/10") }>
+                          <div
+                            className={cn(
+                              "w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border transition-colors",
+                              isDarkTheme
+                                ? "bg-white/5 text-white/60 border-white/5"
+                                : "bg-black/5 text-black/60 border-black/5",
+                            )}
+                          >
                             {r.initials}
                           </div>
                           <div>
                             <p className="font-bold text-lg tracking-tight">
                               {r.name}
                             </p>
-                            <p className={signedInSubtleTextClass + " text-[12px] font-bold uppercase tracking-widest"}>
+                            <p
+                              className={cn(
+                                "text-[12px] font-bold uppercase tracking-widest transition-colors",
+                                isDarkTheme ? "text-white/30" : "text-black/60",
+                              )}
+                            >
                               {r.balance > 0 ? "owes you" : "you owe them"}
                             </p>
                           </div>
@@ -695,7 +968,7 @@ export default function App() {
                             {r.balance > 0 ? "+" : "-"}$
                             {Math.abs(r.balance).toFixed(2)}
                           </span>
-                          <button 
+                          <button
                             onClick={() => {
                               if (r.balance > 0) {
                                 setSelectedRoommateForRequest(r);
@@ -704,7 +977,12 @@ export default function App() {
                                 setShowPaymentModal(true);
                               }
                             }}
-                            className={cn("w-[100px] flex items-center justify-center text-[12px] font-bold uppercase tracking-[0.15em] px-5 py-2.5 rounded-xl transition-all active:scale-95", signedInSoftSurfaceClass, signedInSoftSurfaceHoverClass)}
+                            className={cn(
+                              "w-[100px] flex items-center justify-center text-[12px] font-bold uppercase tracking-[0.15em] px-5 py-2.5 rounded-xl transition-all active:scale-95",
+                              isDarkTheme
+                                ? "bg-white/5 hover:bg-white/10"
+                                : "bg-black/5 hover:bg-black/10",
+                            )}
                           >
                             {r.balance > 0 ? "request" : "pay"}
                           </button>
@@ -717,7 +995,12 @@ export default function App() {
               {/* Recent Expenses */}
               <section>
                 <div className="flex items-center justify-between mb-4 px-1">
-                  <h2 className={signedInMutedTextClass + " text-[12px] font-bold uppercase tracking-[0.2em]"}>
+                  <h2
+                    className={cn(
+                      "text-[12px] font-bold uppercase tracking-[0.2em] transition-colors",
+                      isDarkTheme ? "text-white/40" : "text-black/70",
+                    )}
+                  >
                     Recent Expenses
                   </h2>
                   <button
@@ -731,19 +1014,40 @@ export default function App() {
                   {sortedExpenses.map((e) => (
                     <div
                       key={e.id}
-                      className={cn(signedInSurfaceClass, "p-5 rounded-3xl flex items-center justify-between group transition-all", signedInSurfaceHoverClass)}
+                      className={cn(
+                        "border p-5 rounded-3xl flex items-center justify-between group transition-all",
+                        isDarkTheme
+                          ? "bg-[#151515] border-white/5 hover:border-white/10"
+                          : "bg-gray-50 border-black/5 hover:border-black/10",
+                      )}
                     >
                       <div className="flex items-center gap-5">
-                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors", signedInIconSurfaceClass)}>
+                        <div
+                          className={cn(
+                            "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all",
+                            isDarkTheme
+                              ? "bg-black/5 text-white/40 border-white/5 group-hover:text-white"
+                              : "bg-black/5 text-black/70 border-black/5 group-hover:text-black",
+                          )}
+                        >
                           {getCategoryIcon(e.category)}
                         </div>
                         <div>
                           <p className="font-bold tracking-tight">
                             {e.description}
                           </p>
-                          <p className={signedInSubtleTextClass + " text-[12px] font-bold uppercase tracking-widest"}>
+                          <p
+                            className={cn(
+                              "text-[12px] font-bold uppercase tracking-widest transition-colors",
+                              isDarkTheme ? "text-white/30" : "text-black/60",
+                            )}
+                          >
                             Paid by{" "}
-                            {roommatesWithStats.find((r) => r.id === e.paidBy)?.name} •{" "}
+                            {
+                              roommatesWithStats.find((r) => r.id === e.paidBy)
+                                ?.name
+                            }{" "}
+                            •{" "}
                             {new Date(e.date).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
@@ -755,7 +1059,12 @@ export default function App() {
                         <p className="font-bold text-lg tracking-tight">
                           ${e.amount.toFixed(2)}
                         </p>
-                        <p className={signedInSubtleTextClass + " text-[9px] font-bold uppercase tracking-[0.2em]"}>
+                        <p
+                          className={cn(
+                            "text-[9px] font-bold uppercase tracking-[0.2em] transition-colors",
+                            isDarkTheme ? "text-white/20" : "text-black/50",
+                          )}
+                        >
                           split {e.splitWith.length} ways
                         </p>
                       </div>
@@ -778,67 +1087,104 @@ export default function App() {
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
                   Activity History
                 </h1>
-                <p className={signedInMutedTextClass + " text-sm font-medium"}>
+                <p
+                  className={cn(
+                    "text-sm font-medium transition-colors",
+                    isDarkTheme ? "text-white/40" : "text-black/70",
+                  )}
+                >
                   All shared costs and settlements
                 </p>
               </header>
 
               <div className="space-y-6">
                 {[
-                  ...expenses.map(e => ({ ...e, activityType: 'expense' as const })),
-                  ...payments.map(p => ({ ...p, activityType: 'payment' as const }))
+                  ...expenses.map((e) => ({
+                    ...e,
+                    activityType: "expense" as const,
+                  })),
+                  ...payments.map((p) => ({
+                    ...p,
+                    activityType: "payment" as const,
+                  })),
                 ]
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .map((item) => (
-                  <div
-                    key={item.id}
-                    className={cn(signedInSurfaceClass, "p-5 rounded-3xl flex items-center justify-between group transition-all", signedInSurfaceHoverClass)}
-                  >
-                    <div className="flex items-center gap-5">
-                      <div className={cn(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center border",
-                        item.activityType === 'expense'
-                          ? cn(signedInSoftSurfaceClass, isDarkTheme ? "text-white/40 border-white/5" : "text-black/50 border-black/10")
-                          : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                      )}>
-                        {item.activityType === 'expense' ? (
-                          getCategoryIcon((item as Expense).category)
-                        ) : (
-                          <CheckCircle2 className="w-5 h-5" />
+                  .sort(
+                    (a, b) =>
+                      new Date(b.date).getTime() - new Date(a.date).getTime(),
+                  )
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      className={cn(
+                        "border p-5 rounded-3xl flex items-center justify-between group transition-all",
+                        isDarkTheme
+                          ? "bg-[#151515] border-white/5 hover:border-white/10"
+                          : "bg-gray-50 border-black/5 hover:border-black/10",
+                      )}
+                    >
+                      <div className="flex items-center gap-5">
+                        <div
+                          className={cn(
+                            "w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors",
+                            item.activityType === "expense"
+                              ? isDarkTheme
+                                ? "bg-white/5 text-white/40 border-white/5"
+                                : "bg-black/5 text-black/70 border-black/5"
+                              : "bg-emerald-500/10 text-emerald-400 border-emerald-500/10",
+                          )}
+                        >
+                          {item.activityType === "expense" ? (
+                            getCategoryIcon((item as Expense).category)
+                          ) : (
+                            <CheckCircle2 className="w-5 h-5" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold tracking-tight">
+                            {item.activityType === "expense"
+                              ? (item as Expense).description
+                              : `Payment from ${roommates.find((r) => r.id === (item as Payment).from)?.name} to ${roommates.find((r) => r.id === (item as Payment).to)?.name}`}
+                          </p>
+                          <p
+                            className={cn(
+                              "text-[12px] font-bold uppercase tracking-widest transition-colors",
+                              isDarkTheme ? "text-white/30" : "text-black/60",
+                            )}
+                          >
+                            {new Date(item.date).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                            {item.activityType === "payment" &&
+                              (item as Payment).note &&
+                              ` • ${(item as Payment).note}`}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className={cn(
+                            "font-bold text-lg tracking-tight",
+                            item.activityType === "payment" &&
+                              "text-emerald-400",
+                          )}
+                        >
+                          ${item.amount.toFixed(2)}
+                        </p>
+                        {item.activityType === "expense" && (
+                          <p
+                            className={cn(
+                              "text-[9px] font-bold uppercase tracking-[0.2em] transition-colors",
+                              isDarkTheme ? "text-white/20" : "text-black/50",
+                            )}
+                          >
+                            split {(item as Expense).splitWith.length} ways
+                          </p>
                         )}
                       </div>
-                      <div>
-                        <p className="font-bold tracking-tight">
-                          {item.activityType === 'expense' 
-                            ? (item as Expense).description 
-                            : `Payment from ${roommates.find(r => r.id === (item as Payment).from)?.name} to ${roommates.find(r => r.id === (item as Payment).to)?.name}`
-                          }
-                        </p>
-                        <p className={signedInSubtleTextClass + " text-[12px] font-bold uppercase tracking-widest"}>
-                          {new Date(item.date).toLocaleDateString("en-US", {
-                            weekday: "long",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                          {item.activityType === 'payment' && (item as Payment).note && ` • ${(item as Payment).note}`}
-                        </p>
-                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className={cn(
-                        "font-bold text-lg tracking-tight",
-                        item.activityType === 'payment' && "text-emerald-400"
-                      )}>
-                        ${item.amount.toFixed(2)}
-                      </p>
-                      {item.activityType === 'expense' && (
-                        <p className={signedInSubtleTextClass + " text-[9px] font-bold uppercase tracking-[0.2em]"}>
-                          split {(item as Expense).splitWith.length} ways
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </motion.div>
           )}
@@ -853,48 +1199,41 @@ export default function App() {
             >
               <header className="mb-8">
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
-                  Recent Activity
+                  Messages & Reminders
                 </h1>
-                <p className={signedInMutedTextClass + " text-sm font-medium"}>
-                  List of requests and payment found here
+                <p
+                  className={cn(
+                    "text-sm font-medium transition-colors",
+                    isDarkTheme ? "text-white/40" : "text-black/70",
+                  )}
+                >
+                  View your recent activity and reminders
                 </p>
               </header>
 
               <div className="space-y-4">
-                {/* <div className="bg-[#151515] border border-white/5 p-8 rounded-[2rem]">
+                <div
+                  className={cn(
+                    "border p-8 rounded-[2rem] transition-colors",
+                    isDarkTheme
+                      ? "bg-[#151515] border-white/5"
+                      : "bg-gray-50 border-black/5",
+                  )}
+                >
                   <h3 className="text-lg font-bold mb-6 tracking-tight">
-                    Quick Templates
-                  </h3>
-                  <div className="grid grid-cols-1 gap-3">
-                    {[
-                      "Hey! Just a friendly reminder for the groceries split. No rush! 😊",
-                      "Settling up the utilities for this month. Whenever you have a sec! ⚡️",
-                      "Shared household supplies update. Thanks for keeping the place stocked! 🏠",
-                      "Anonymous: Hey, we're a bit unbalanced on expenses lately. Let's settle up soon! 🤝",
-                    ].map((template, i) => (
-                      <button
-                        key={i}
-                        className="text-left p-5 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 group"
-                      >
-                        <p className="text-sm text-white/70 group-hover:text-white transition-colors">
-                          {template}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-                </div> */}
-
-                <div className={cn(signedInRecentActivityCardClass, "p-8 rounded-[2rem]")}>
-                  {/* <h3 className="text-lg font-bold mb-6 tracking-tight">
                     Recent Activity
-                  </h3> */}
+                  </h3>
                   <div className="space-y-4">
                     {recentActivities.map((activity) => (
                       <div key={activity.id} className="flex gap-4 items-start">
-                        <div className={cn(
-                          "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
-                          activity.type === "settlement" ? "bg-emerald-500/10" : "bg-indigo-500/10"
-                        )}>
+                        <div
+                          className={cn(
+                            "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+                            activity.type === "settlement"
+                              ? "bg-emerald-500/10"
+                              : "bg-indigo-500/10",
+                          )}
+                        >
                           {activity.type === "settlement" ? (
                             <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                           ) : (
@@ -903,13 +1242,21 @@ export default function App() {
                         </div>
                         <div>
                           <p className="text-sm font-bold">
-                            {activity.type === "settlement" 
-                              ? `${roommates.find(r => r.id === activity.from)?.name} settled up`
-                              : `You sent a reminder to ${roommates.find(r => r.id === activity.to)?.name}`
-                            }
+                            {activity.type === "settlement"
+                              ? `${roommates.find((r) => r.id === activity.from)?.name} settled up`
+                              : `You sent a reminder to ${roommates.find((r) => r.id === activity.to)?.name}`}
                           </p>
-                          <p className={signedInRecentActivityMutedClass + " text-xs mt-1"}>
-                            "{activity.message}" • {new Date(activity.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          <p
+                            className={cn(
+                              "text-xs mt-1 transition-colors",
+                              isDarkTheme ? "text-white/40" : "text-black/70",
+                            )}
+                          >
+                            "{activity.message}" •{" "}
+                            {new Date(activity.date).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </p>
                         </div>
                       </div>
@@ -932,26 +1279,55 @@ export default function App() {
                 <h1 className="text-4xl font-bold mb-2 tracking-tight">
                   Your Profile
                 </h1>
-                <p className={signedInMutedTextClass + " text-sm font-medium"}>
+                <p
+                  className={cn(
+                    "text-sm font-medium transition-colors",
+                    isDarkTheme ? "text-white/40" : "text-black/70",
+                  )}
+                >
                   Manage your account and preferences
                 </p>
               </header>
 
               <div className="space-y-4">
-                <div className={cn(signedInSurfaceClass, "p-8 rounded-[2rem] flex items-center gap-6") }>
+                <div
+                  className={cn(
+                    "border p-8 rounded-[2rem] flex items-center gap-6 transition-colors",
+                    isDarkTheme
+                      ? "bg-[#151515] border-white/5"
+                      : "bg-gray-50 border-black/5",
+                  )}
+                >
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-2xl font-bold text-white shadow-xl shadow-indigo-500/20 uppercase">
-                    {currentUser.name.split(" ").map(n => n[0]).join("")}
+                    {currentUser.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold tracking-tight">{currentUser.name}</h3>
-                    <p className={signedInMutedTextClass + " font-medium tracking-wide"}>{currentUser.email}</p>
+                    <h3 className="text-2xl font-bold tracking-tight">
+                      {currentUser.name}
+                    </h3>
+                    <p
+                      className={cn(
+                        "font-medium tracking-wide transition-colors",
+                        isDarkTheme ? "text-white/40" : "text-black/70",
+                      )}
+                    >
+                      {currentUser.email}
+                    </p>
                   </div>
                 </div>
 
-                <div className={cn(signedInSurfaceClass, "p-8 rounded-[2rem] space-y-4") }>
-                  <h3 className={signedInSubtleTextClass + " text-[12px] font-bold uppercase tracking-[0.2em] mb-4"}>Account Settings</h3>
-                  
-                  <button 
+                <div
+                  className={cn(
+                    "border p-8 rounded-[2rem] space-y-4 transition-colors",
+                    isDarkTheme
+                      ? "bg-[#151515] border-white/5"
+                      : "bg-gray-50 border-black/5",
+                  )}
+                >
+                  <button
                     onClick={handleLogout}
                     className="w-full flex items-center justify-between p-4 bg-rose-500/10 hover:bg-rose-500/20 rounded-2xl transition-all border border-rose-500/10 group font-bold text-rose-400"
                   >
@@ -980,12 +1356,19 @@ export default function App() {
                     setShowExpenseModal(true);
                     setIsPlusMenuOpen(false);
                   }}
-                  className={cn("flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-colors whitespace-nowrap", signedInFloatingButtonClass)}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-colors whitespace-nowrap",
+                    isDarkTheme
+                      ? "bg-[#1A1A1A] border border-white/10 hover:bg-white/5 text-white"
+                      : "bg-white border border-black/10 hover:bg-black/5 text-black",
+                  )}
                 >
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
                     <Receipt className="w-5 h-5 text-indigo-400" />
                   </div>
-                  <span className="text-base font-bold tracking-tight">Add Expense</span>
+                  <span className="text-base font-bold tracking-tight">
+                    Add Expense
+                  </span>
                 </motion.button>
                 <motion.button
                   initial={{ opacity: 0, y: 20, scale: 0.8 }}
@@ -996,26 +1379,42 @@ export default function App() {
                     setShowPaymentModal(true);
                     setIsPlusMenuOpen(false);
                   }}
-                  className={cn("flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-colors whitespace-nowrap", signedInFloatingButtonClass)}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-colors whitespace-nowrap",
+                    isDarkTheme
+                      ? "bg-[#1A1A1A] border border-white/10 hover:bg-white/5 text-white"
+                      : "bg-white border border-black/10 hover:bg-black/5 text-black",
+                  )}
                 >
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
                     <Wallet className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <span className="text-base font-bold tracking-tight">Log Payment</span>
+                  <span className="text-base font-bold tracking-tight">
+                    Log Payment
+                  </span>
                 </motion.button>
               </div>
             )}
           </AnimatePresence>
 
-          <div className={cn("backdrop-blur-2xl px-4 py-3 rounded-[3rem] flex items-center gap-1", signedInFloatingBarClass)}>
+          <div
+            className={cn(
+              "backdrop-blur-2xl border px-4 py-3 rounded-[3rem] flex items-center gap-1 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-colors",
+              isDarkTheme
+                ? "bg-[#1A1A1A]/90 border-white/10"
+                : "bg-white/90 border-black/10",
+            )}
+          >
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setActiveTab("dashboard")}
                 className={cn(
                   "p-4 rounded-full transition-all duration-500 relative",
                   activeTab === "dashboard"
-                    ? signedInFloatingIconActiveClass
-                    : signedInFloatingIconClass,
+                    ? "text-indigo-400"
+                    : isDarkTheme
+                      ? "text-white/30 hover:text-white"
+                      : "text-black/60 hover:text-black",
                 )}
               >
                 <LayoutDashboard className="w-6 h-6" />
@@ -1031,8 +1430,10 @@ export default function App() {
                 className={cn(
                   "p-4 rounded-full transition-all duration-500 relative",
                   activeTab === "history"
-                    ? signedInFloatingIconActiveClass
-                    : signedInFloatingIconClass,
+                    ? "text-indigo-400"
+                    : isDarkTheme
+                      ? "text-white/30 hover:text-white"
+                      : "text-black/60 hover:text-black",
                 )}
               >
                 <History className="w-6 h-6" />
@@ -1044,7 +1445,7 @@ export default function App() {
                 )}
               </button>
             </div>
-            
+
             {/* Center Plus Button - Larger and Prominent */}
             <div className="px-4">
               <button
@@ -1052,8 +1453,10 @@ export default function App() {
                 className={cn(
                   "w-16 h-16 rounded-full transition-all duration-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 active:scale-95",
                   isPlusMenuOpen
-                    ? signedInFloatingPlusActiveClass
-                    : signedInFloatingPlusClass
+                    ? isDarkTheme
+                      ? "bg-white text-indigo-500 rotate-45"
+                      : "bg-black text-white rotate-45"
+                    : "bg-indigo-500 text-white",
                 )}
               >
                 <Plus className="w-8 h-8" />
@@ -1066,8 +1469,10 @@ export default function App() {
                 className={cn(
                   "p-4 rounded-full transition-all duration-500 relative",
                   activeTab === "messages"
-                    ? signedInFloatingIconActiveClass
-                    : signedInFloatingIconClass,
+                    ? "text-indigo-400"
+                    : isDarkTheme
+                      ? "text-white/30 hover:text-white"
+                      : "text-black/60 hover:text-black",
                 )}
               >
                 <MessageSquare className="w-6 h-6" />
@@ -1083,8 +1488,10 @@ export default function App() {
                 className={cn(
                   "p-4 rounded-full transition-all duration-500 relative",
                   activeTab === "profile"
-                    ? signedInFloatingIconActiveClass
-                    : signedInFloatingIconClass,
+                    ? "text-indigo-400"
+                    : isDarkTheme
+                      ? "text-white/30 hover:text-white"
+                      : "text-black/60 hover:text-black",
                 )}
               >
                 <User className="w-6 h-6" />
@@ -1103,7 +1510,7 @@ export default function App() {
       {/* Expense Modal */}
       <AnimatePresence>
         {showExpenseModal && (
-          <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1116,23 +1523,41 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className={cn("relative my-4 sm:my-0 w-full max-w-md max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] rounded-[3rem] overflow-hidden", signedInModalClass)}
+              className={cn(
+                "relative w-full max-w-md border rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors",
+                isDarkTheme
+                  ? "bg-[#111] border-white/10"
+                  : "bg-white border-black/10",
+              )}
             >
-              <div className="p-6 sm:p-10 overflow-y-auto max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]">
+              <div className="p-10">
                 <div className="flex items-center justify-between mb-10">
                   <div>
                     <h2 className="text-3xl font-bold tracking-tight">
                       Add an expense
                     </h2>
-                    <p className={signedInModalMutedClass + " text-sm font-medium mt-1"}>
+                    <p
+                      className={cn(
+                        "text-sm font-medium mt-1 transition-colors",
+                        isDarkTheme ? "text-white/30" : "text-black/60",
+                      )}
+                    >
                       Log a shared cost to be split
                     </p>
                   </div>
                   <button
                     onClick={() => setShowExpenseModal(false)}
-                    className={cn("p-3 rounded-full transition-colors", signedInSoftSurfaceHoverClass)}
+                    className={cn(
+                      "p-3 rounded-full transition-colors",
+                      isDarkTheme ? "hover:bg-white/5" : "hover:bg-black/5",
+                    )}
                   >
-                    <X className={cn("w-6 h-6", signedInModalTextClass)} />
+                    <X
+                      className={cn(
+                        "w-6 h-6 transition-colors",
+                        isDarkTheme ? "text-white/20" : "text-black/50",
+                      )}
+                    />
                   </button>
                 </div>
 
@@ -1145,8 +1570,13 @@ export default function App() {
                     const amount = parseFloat(formData.get("amount") as string);
                     const category = formData.get("category") as Category;
                     const paidBy = formData.get("paidBy") as string;
-                    
-                    if (!description || isNaN(amount) || selectedSplitWith.length === 0) return;
+
+                    if (
+                      !description ||
+                      isNaN(amount) ||
+                      selectedSplitWith.length === 0
+                    )
+                      return;
 
                     const newExpense: Expense = {
                       id: `e${Date.now()}`,
@@ -1160,11 +1590,16 @@ export default function App() {
 
                     setExpenses([newExpense, ...expenses]);
                     setShowExpenseModal(false);
-                    setSelectedSplitWith(roommates.map(r => r.id)); // Reset for next time
+                    setSelectedSplitWith(roommates.map((r) => r.id)); // Reset for next time
                   }}
                 >
                   <div className="space-y-3">
-                    <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                    <label
+                      className={cn(
+                        "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                        isDarkTheme ? "text-white/30" : "text-black/60",
+                      )}
+                    >
                       Description*
                     </label>
                     <input
@@ -1172,16 +1607,31 @@ export default function App() {
                       type="text"
                       required
                       placeholder="e.g. Grocery run"
-                      className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium", signedInModalInputClass)}
+                      className={cn(
+                        "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium",
+                        isDarkTheme
+                          ? "bg-white/5 border-white/10 focus:bg-white/[0.08] text-white placeholder:text-white/10"
+                          : "bg-black/5 border-black/10 focus:bg-black/[0.02] text-black placeholder:text-black/50",
+                      )}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-3">
-                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                      <label
+                        className={cn(
+                          "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                          isDarkTheme ? "text-white/30" : "text-black/60",
+                        )}
+                      >
                         Amount*
                       </label>
                       <div className="relative">
-                        <span className={cn("absolute left-6 top-1/2 -translate-y-1/2 text-lg", signedInModalTextClass)}>
+                        <span
+                          className={cn(
+                            "absolute left-6 top-1/2 -translate-y-1/2 text-lg transition-colors",
+                            isDarkTheme ? "text-white/20" : "text-black/50",
+                          )}
+                        >
                           $
                         </span>
                         <input
@@ -1190,15 +1640,33 @@ export default function App() {
                           step="0.01"
                           required
                           placeholder="0.00"
-                          className={cn("w-full rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium", signedInModalInputClass)}
+                          className={cn(
+                            "w-full border rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium",
+                            isDarkTheme
+                              ? "bg-white/5 border-white/10 focus:bg-white/[0.08] text-white placeholder:text-white/10"
+                              : "bg-black/5 border-black/10 focus:bg-black/[0.02] text-black placeholder:text-black/50",
+                          )}
                         />
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                      <label
+                        className={cn(
+                          "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                          isDarkTheme ? "text-white/30" : "text-black/60",
+                        )}
+                      >
                         Category
                       </label>
-                      <select name="category" className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none", signedInModalSelectClass)}>
+                      <select
+                        name="category"
+                        className={cn(
+                          "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none",
+                          isDarkTheme
+                            ? "bg-[#111] text-white border-white/10 focus:bg-[#1A1A1A]"
+                            : "bg-white text-black border-black/10 focus:bg-gray-50",
+                        )}
+                      >
                         <option value="Groceries">Groceries</option>
                         <option value="Utilities">Utilities</option>
                         <option value="Household">Household</option>
@@ -1207,45 +1675,82 @@ export default function App() {
                       </select>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
-                    <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                    <label
+                      className={cn(
+                        "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                        isDarkTheme ? "text-white/30" : "text-black/60",
+                      )}
+                    >
                       Paid by*
                     </label>
-                    <select name="paidBy" className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none", signedInModalSelectClass)}>
+                    <select
+                      name="paidBy"
+                      className={cn(
+                        "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none",
+                        isDarkTheme
+                          ? "bg-[#111] text-white border-white/10 focus:bg-[#1A1A1A]"
+                          : "bg-white text-black border-black/10 focus:bg-gray-50",
+                      )}
+                    >
                       {roommates.map((r) => (
-                        <option key={r.id} value={r.id}>{r.name}</option>
+                        <option key={r.id} value={r.id}>
+                          {r.name}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   <div className="space-y-4">
-                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                    <label
+                      className={cn(
+                        "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                        isDarkTheme ? "text-white/30" : "text-black/60",
+                      )}
+                    >
                       Split with
                     </label>
                     <div className="grid grid-cols-1 gap-2">
                       {roommates.map((r) => (
                         <label
                           key={r.id}
-                            className={cn("flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border border-transparent", signedInModalTemplateButtonClass)}
+                          className={cn(
+                            "flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border border-transparent",
+                            isDarkTheme
+                              ? "bg-white/5 hover:bg-white/10 hover:border-white/5"
+                              : "bg-black/5 hover:bg-black/10 hover:border-black/5",
+                          )}
                         >
                           <div className="flex items-center gap-3">
-                              <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold", signedInSoftSurfaceClass, signedInModalMutedClass)}>
+                            <div
+                              className={cn(
+                                "w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold transition-colors",
+                                isDarkTheme
+                                  ? "bg-white/5 text-white/40"
+                                  : "bg-black/5 text-black/70",
+                              )}
+                            >
                               {r.initials}
                             </div>
-                              <span className="text-sm font-bold">{r.name}</span>
+                            <span className="text-sm font-bold">{r.name}</span>
                           </div>
                           <input
                             type="checkbox"
                             checked={selectedSplitWith.includes(r.id)}
                             onChange={(e) => {
                               if (e.target.checked) {
-                                setSelectedSplitWith([...selectedSplitWith, r.id]);
+                                setSelectedSplitWith([
+                                  ...selectedSplitWith,
+                                  r.id,
+                                ]);
                               } else {
-                                setSelectedSplitWith(selectedSplitWith.filter(id => id !== r.id));
+                                setSelectedSplitWith(
+                                  selectedSplitWith.filter((id) => id !== r.id),
+                                );
                               }
                             }}
-                            className={cn("w-6 h-6 rounded-lg bg-transparent text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0", isDarkTheme ? "border-white/10" : "border-black/20")}
+                            className="w-6 h-6 rounded-lg border-white/10 bg-transparent text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
                           />
                         </label>
                       ))}
@@ -1255,7 +1760,12 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => setShowExpenseModal(false)}
-                      className={cn("flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all", signedInSoftSurfaceClass, signedInSoftSurfaceHoverClass)}
+                      className={cn(
+                        "flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all",
+                        isDarkTheme
+                          ? "bg-white/5 hover:bg-white/10"
+                          : "bg-black/5 hover:bg-black/10",
+                      )}
                     >
                       Cancel
                     </button>
@@ -1289,7 +1799,12 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className={cn("relative w-full max-w-md rounded-[3rem] overflow-hidden", signedInModalClass)}
+              className={cn(
+                "relative w-full max-w-md border rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors",
+                isDarkTheme
+                  ? "bg-[#111] border-white/10"
+                  : "bg-white border-black/10",
+              )}
             >
               <div className="p-10">
                 <div className="flex items-center justify-between mb-10">
@@ -1297,15 +1812,28 @@ export default function App() {
                     <h2 className="text-3xl font-bold tracking-tight">
                       Log payment
                     </h2>
-                    <p className={signedInModalMutedClass + " text-sm font-medium mt-1"}>
+                    <p
+                      className={cn(
+                        "text-sm font-medium mt-1 transition-colors",
+                        isDarkTheme ? "text-white/30" : "text-black/60",
+                      )}
+                    >
                       Record a settlement between roommates
                     </p>
                   </div>
                   <button
                     onClick={() => setShowPaymentModal(false)}
-                    className={cn("p-3 rounded-full transition-colors", signedInSoftSurfaceHoverClass)}
+                    className={cn(
+                      "p-3 rounded-full transition-colors",
+                      isDarkTheme ? "hover:bg-white/5" : "hover:bg-black/5",
+                    )}
                   >
-                    <X className={cn("w-6 h-6", signedInModalTextClass)} />
+                    <X
+                      className={cn(
+                        "w-6 h-6 transition-colors",
+                        isDarkTheme ? "text-white/20" : "text-black/50",
+                      )}
+                    />
                   </button>
                 </div>
 
@@ -1319,7 +1847,8 @@ export default function App() {
                     const amount = parseFloat(formData.get("amount") as string);
                     const note = formData.get("note") as string;
 
-                    if (!fromId || !toId || isNaN(amount) || fromId === toId) return;
+                    if (!fromId || !toId || isNaN(amount) || fromId === toId)
+                      return;
 
                     const newPayment: Payment = {
                       id: `p${Date.now()}`,
@@ -1327,80 +1856,122 @@ export default function App() {
                       to: toId,
                       amount,
                       date: new Date().toISOString(),
-                      method: "manual",
                       note,
                     };
 
                     setPayments([newPayment, ...payments]);
-                    
+
                     // Add to recent activity if it's a settlement involving "You"
                     if (toId === "1") {
-                      setRecentActivities([{
-                        id: Date.now().toString(),
-                        type: "settlement",
-                        from: fromId,
-                        to: toId,
-                        message: note || "Settled up!",
-                        date: new Date().toISOString(),
-                      }, ...recentActivities]);
+                      setRecentActivities([
+                        {
+                          id: Date.now().toString(),
+                          type: "settlement",
+                          from: fromId,
+                          to: toId,
+                          message: note || "Settled up!",
+                          date: new Date().toISOString(),
+                        },
+                        ...recentActivities,
+                      ]);
                     }
 
                     setShowPaymentModal(false);
-                    addNotification(`Payment logged from ${roommates.find(r => r.id === fromId)?.name}`);
+                    addNotification(
+                      `Payment logged from ${roommates.find((r) => r.id === fromId)?.name}`,
+                    );
                   }}
                 >
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-3">
-                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                      <label
+                        className={cn(
+                          "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                          isDarkTheme ? "text-white/30" : "text-black/60",
+                        )}
+                      >
                         From*
                       </label>
-                      <select 
-                        name="from" 
+                      <select
+                        name="from"
                         value={paymentFrom}
                         onChange={(e) => {
                           const val = e.target.value;
                           setPaymentFrom(val);
                           if (val === paymentTo) {
-                            const other = roommates.find(r => r.id !== val);
+                            const other = roommates.find((r) => r.id !== val);
                             if (other) setPaymentTo(other.id);
                           }
                         }}
-                        className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none", signedInModalSelectClass)}
+                        className={cn(
+                          "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none",
+                          isDarkTheme
+                            ? "bg-[#111] text-white border-white/10 focus:bg-[#1A1A1A]"
+                            : "bg-white text-black border-black/10 focus:bg-gray-50",
+                        )}
                       >
                         {roommates.map((r) => (
-                          <option key={r.id} value={r.id}>{r.name}</option>
+                          <option key={r.id} value={r.id}>
+                            {r.name}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div className="space-y-3">
-                      <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                      <label
+                        className={cn(
+                          "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                          isDarkTheme ? "text-white/30" : "text-black/60",
+                        )}
+                      >
                         To*
                       </label>
-                      <select 
-                        name="to" 
+                      <select
+                        name="to"
                         value={paymentTo}
                         onChange={(e) => {
                           const val = e.target.value;
                           setPaymentTo(val);
                           if (val === paymentFrom) {
-                            const other = roommates.find(r => r.id !== val);
+                            const other = roommates.find((r) => r.id !== val);
                             if (other) setPaymentFrom(other.id);
                           }
                         }}
-                        className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none", signedInModalSelectClass)}
+                        className={cn(
+                          "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none",
+                          isDarkTheme
+                            ? "bg-[#111] text-white border-white/10 focus:bg-[#1A1A1A]"
+                            : "bg-white text-black border-black/10 focus:bg-gray-50",
+                        )}
                       >
                         {roommates.map((r) => (
-                          <option key={r.id} value={r.id} disabled={r.id === paymentFrom}>{r.name}</option>
+                          <option
+                            key={r.id}
+                            value={r.id}
+                            disabled={r.id === paymentFrom}
+                          >
+                            {r.name}
+                          </option>
                         ))}
                       </select>
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                    <label
+                      className={cn(
+                        "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                        isDarkTheme ? "text-white/30" : "text-black/60",
+                      )}
+                    >
                       Amount*
                     </label>
                     <div className="relative">
-                      <span className={cn("absolute left-6 top-1/2 -translate-y-1/2 text-lg", signedInModalTextClass)}>
+                      <span
+                        className={cn(
+                          "absolute left-6 top-1/2 -translate-y-1/2 text-lg transition-colors",
+                          isDarkTheme ? "text-white/20" : "text-black/50",
+                        )}
+                      >
                         $
                       </span>
                       <input
@@ -1409,25 +1980,45 @@ export default function App() {
                         step="0.01"
                         required
                         placeholder="0.00"
-                        className={cn("w-full rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium", signedInModalInputClass)}
+                        className={cn(
+                          "w-full border rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium",
+                          isDarkTheme
+                            ? "bg-white/5 border-white/10 focus:bg-white/[0.08] text-white placeholder:text-white/10"
+                            : "bg-black/5 border-black/10 focus:bg-black/[0.02] text-black placeholder:text-black/50",
+                        )}
                       />
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <label className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                    <label
+                      className={cn(
+                        "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
+                        isDarkTheme ? "text-white/30" : "text-black/60",
+                      )}
+                    >
                       Note (Optional)
                     </label>
                     <textarea
                       name="note"
                       placeholder="Add a note..."
-                      className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium h-32 resize-none", signedInModalInputClass)}
+                      className={cn(
+                        "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium h-32 resize-none",
+                        isDarkTheme
+                          ? "bg-white/5 border-white/10 focus:bg-white/[0.08] text-white placeholder:text-white/10"
+                          : "bg-black/5 border-black/10 focus:bg-black/[0.02] text-black placeholder:text-black/50",
+                      )}
                     />
                   </div>
                   <div className="flex gap-4 pt-6">
                     <button
                       type="button"
                       onClick={() => setShowPaymentModal(false)}
-                      className={cn("flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all", signedInSoftSurfaceClass, signedInSoftSurfaceHoverClass)}
+                      className={cn(
+                        "flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all",
+                        isDarkTheme
+                          ? "bg-white/5 hover:bg-white/10"
+                          : "bg-black/5 hover:bg-black/10",
+                      )}
                     >
                       Cancel
                     </button>
@@ -1447,7 +2038,7 @@ export default function App() {
       {/* Request Modal */}
       <AnimatePresence>
         {showRequestModal && selectedRoommateForRequest && (
-          <div className="fixed inset-0 z-[150] flex items-start sm:items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1459,29 +2050,48 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className={cn("relative my-4 sm:my-0 w-full max-w-md max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] rounded-[3rem] overflow-hidden", signedInModalClass)}
+              className={cn(
+                "relative w-full max-w-md border rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors",
+                isDarkTheme
+                  ? "bg-[#111] border-white/10"
+                  : "bg-white border-black/10",
+              )}
             >
-              <div className="p-6 sm:p-10 overflow-y-auto max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]">
+              <div className="p-10">
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h2 className="text-3xl font-bold tracking-tight">
                       Request Payment
                     </h2>
-                    <p className={signedInModalMutedClass + " text-sm font-medium mt-1"}>
-                      Send a friendly reminder to {selectedRoommateForRequest.name}
+                    <p
+                      className={cn(
+                        "text-sm font-medium mt-1 transition-colors",
+                        isDarkTheme ? "text-white/30" : "text-black/60",
+                      )}
+                    >
+                      Send a friendly reminder to{" "}
+                      {selectedRoommateForRequest.name}
                     </p>
                   </div>
                   <button
                     onClick={() => setShowRequestModal(false)}
-                    className={cn("p-3 rounded-full transition-colors", signedInSoftSurfaceHoverClass)}
+                    className={cn(
+                      "p-3 rounded-full transition-colors",
+                      isDarkTheme ? "hover:bg-white/5" : "hover:bg-black/5",
+                    )}
                   >
-                    <X className={cn("w-6 h-6", signedInModalTextClass)} />
+                    <X
+                      className={cn(
+                        "w-6 h-6 transition-colors",
+                        isDarkTheme ? "text-white/20" : "text-black/50",
+                      )}
+                    />
                   </button>
                 </div>
 
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <p className={signedInModalMutedClass + " text-[12px] font-bold uppercase tracking-[0.2em] ml-1"}>
+                    <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
                       Select a template
                     </p>
                     <div className="grid grid-cols-1 gap-3">
@@ -1494,12 +2104,15 @@ export default function App() {
                         <button
                           key={i}
                           onClick={() => {
-                            handleSendRequest(selectedRoommateForRequest, template);
+                            handleSendRequest(
+                              selectedRoommateForRequest,
+                              template,
+                            );
                             setCustomRequestMessage("");
                           }}
-                          className={cn("text-left p-5 rounded-2xl transition-all border border-transparent group", signedInModalTemplateButtonClass)}
+                          className="text-left p-5 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 group"
                         >
-                          <p className={cn("text-sm transition-colors", isDarkTheme ? "text-white/70 group-hover:text-white" : "text-black/70 group-hover:text-black")}>
+                          <p className="text-sm text-white/70 group-hover:text-white transition-colors">
                             {template}
                           </p>
                         </button>
@@ -1508,11 +2121,14 @@ export default function App() {
                   </div>
 
                   <div className="relative">
-                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div className={cn("w-full border-t", signedInModalDividerClass)}></div>
+                    <div
+                      className="absolute inset-0 flex items-center"
+                      aria-hidden="true"
+                    >
+                      <div className="w-full border-t border-white/5"></div>
                     </div>
                     <div className="relative flex justify-center text-xs uppercase tracking-widest">
-                      <span className={cn("px-4 font-bold", isDarkTheme ? "bg-[#111] text-white/20" : "bg-white text-black/30")}>
+                      <span className="bg-[#111] px-4 text-white/20 font-bold">
                         Or write your own
                       </span>
                     </div>
@@ -1523,20 +2139,18 @@ export default function App() {
                       value={customRequestMessage}
                       onChange={(e) => setCustomRequestMessage(e.target.value)}
                       placeholder="Type a custom message..."
-                      className={cn("w-full rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-sm font-medium h-24 resize-none", signedInModalInputClass)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-sm font-medium h-24 resize-none placeholder:text-white/10"
                     />
                     <button
                       disabled={!customRequestMessage.trim()}
                       onClick={() => {
-                        handleSendRequest(selectedRoommateForRequest, customRequestMessage);
+                        handleSendRequest(
+                          selectedRoommateForRequest,
+                          customRequestMessage,
+                        );
                         setCustomRequestMessage("");
                       }}
-                      className={cn(
-                        "w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-widest text-white disabled:opacity-50 transition-all flex items-center justify-center gap-2",
-                        isDarkTheme
-                          ? "bg-white/10 hover:bg-indigo-500 disabled:hover:bg-white/10"
-                          : "bg-black/10 hover:bg-indigo-500 disabled:hover:bg-black/10"
-                      )}
+                      className="w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-widest bg-white/10 hover:bg-indigo-500 text-white disabled:opacity-50 disabled:hover:bg-white/10 transition-all flex items-center justify-center gap-2"
                     >
                       <Send className="w-4 h-4" />
                       Send Custom Message
@@ -1544,10 +2158,10 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className={cn("mt-8 pt-8 border-t", signedInModalDividerClass)}>
-                   <button
+                <div className="mt-8 pt-8 border-t border-white/5">
+                  <button
                     onClick={() => setShowRequestModal(false)}
-                    className={cn("w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all", signedInSoftSurfaceClass, signedInSoftSurfaceHoverClass)}
+                    className="w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all"
                   >
                     Cancel
                   </button>
