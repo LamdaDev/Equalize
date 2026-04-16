@@ -1233,7 +1233,7 @@ export default function App() {
       {/* Expense Modal */}
       <AnimatePresence>
         {showExpenseModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1247,12 +1247,12 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className={cn(
-                "relative w-full max-w-md border rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors",
+                "relative w-full max-w-md max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] border rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors flex flex-col",
                 isDarkTheme ? "bg-[#111] border-white/10" : "bg-white border-black/10"
               )}
             >
-              <div className="p-10">
-                <div className="flex items-center justify-between mb-10">
+              <div className="p-4 sm:p-7 lg:p-8 overflow-y-auto">
+                <div className="flex items-center justify-between mb-6">
                   <div>
                     <h2 className="text-3xl font-bold tracking-tight">
                       Add an expense
@@ -1279,7 +1279,7 @@ export default function App() {
                 </div>
 
                 <form
-                  className="space-y-8"
+                  className="space-y-6"
                   onSubmit={(e) => {
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
@@ -1325,7 +1325,7 @@ export default function App() {
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <label className={cn(
                         "text-[12px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors",
@@ -1461,7 +1461,7 @@ export default function App() {
       {/* Payment Modal */}
       <AnimatePresence>
         {showPaymentModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1475,11 +1475,11 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className={cn(
-                "relative w-full max-w-md border rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors",
+                "relative w-full max-w-md max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] border rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors flex flex-col",
                 isDarkTheme ? "bg-[#111] border-white/10" : "bg-white border-black/10"
               )}
             >
-              <div className="p-10">
+              <div className="p-5 sm:p-8 lg:p-10 overflow-y-auto">
                 <div className="flex items-center justify-between mb-10">
                   <div>
                     <h2 className="text-3xl font-bold tracking-tight">
@@ -1565,7 +1565,7 @@ export default function App() {
                           }
                         }}
                         className={cn(
-                          "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none",
+                          "w-full border rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-all text-base font-medium appearance-none",
                           isDarkTheme ? "bg-[#111] text-white border-white/10 focus:bg-[#1A1A1A]" : "bg-white text-black border-black/10 focus:bg-gray-50"
                         )}
                       >
@@ -1593,7 +1593,7 @@ export default function App() {
                           }
                         }}
                         className={cn(
-                          "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium appearance-none",
+                          "w-full border rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-all text-base font-medium appearance-none",
                           isDarkTheme ? "bg-[#111] text-white border-white/10 focus:bg-[#1A1A1A]" : "bg-white text-black border-black/10 focus:bg-gray-50"
                         )}
                       >
@@ -1612,7 +1612,7 @@ export default function App() {
                     </label>
                     <div className="relative">
                       <span className={cn(
-                        "absolute left-6 top-1/2 -translate-y-1/2 text-lg transition-colors",
+                        "absolute left-4 top-1/2 -translate-y-1/2 text-base transition-colors",
                         isDarkTheme ? "text-white/20" : "text-black/50"
                       )}>
                         $
@@ -1624,7 +1624,7 @@ export default function App() {
                         required
                         placeholder="0.00"
                         className={cn(
-                          "w-full border rounded-2xl pl-10 pr-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium",
+                          "w-full border rounded-2xl pl-9 pr-4 py-3 focus:outline-none focus:border-indigo-500 transition-all text-base font-medium",
                           isDarkTheme 
                             ? "bg-white/5 border-white/10 focus:bg-white/[0.08] text-white placeholder:text-white/10" 
                             : "bg-black/5 border-black/10 focus:bg-black/[0.02] text-black placeholder:text-black/50"
@@ -1643,19 +1643,19 @@ export default function App() {
                       name="note"
                       placeholder="Add a note..."
                       className={cn(
-                        "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-lg font-medium h-32 resize-none",
+                        "w-full border rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-all text-base font-medium h-24 resize-none",
                         isDarkTheme 
                           ? "bg-white/5 border-white/10 focus:bg-white/[0.08] text-white placeholder:text-white/10" 
                           : "bg-black/5 border-black/10 focus:bg-black/[0.02] text-black placeholder:text-black/50"
                       )}
                     />
                   </div>
-                  <div className="flex gap-4 pt-6">
+                  <div className="flex gap-3 pt-4">
                     <button
                       type="button"
                       onClick={() => setShowPaymentModal(false)}
                       className={cn(
-                        "flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all",
+                        "flex-1 px-6 py-4 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all",
                         isDarkTheme ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"
                       )}
                     >
@@ -1663,7 +1663,7 @@ export default function App() {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-8 py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-indigo-500 text-white hover:bg-indigo-400 transition-all shadow-[0_10px_20px_rgba(99,102,241,0.2)]"
+                      className="flex-1 px-6 py-4 rounded-3xl font-bold text-sm uppercase tracking-widest bg-indigo-500 text-white hover:bg-indigo-400 transition-all shadow-[0_10px_20px_rgba(99,102,241,0.2)]"
                     >
                       Confirm
                     </button>
@@ -1677,7 +1677,7 @@ export default function App() {
       {/* Request Modal */}
       <AnimatePresence>
         {showRequestModal && selectedRoommateForRequest && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1690,11 +1690,11 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               className={cn(
-                "relative w-full max-w-md border rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors",
+                "relative w-full max-w-md max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] border rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)] transition-colors flex flex-col",
                 isDarkTheme ? "bg-[#111] border-white/10" : "bg-white border-black/10"
               )}
             >
-              <div className="p-10">
+              <div className="p-5 sm:p-8 lg:p-10 overflow-y-auto">
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h2 className="text-3xl font-bold tracking-tight">
@@ -1723,7 +1723,10 @@ export default function App() {
 
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1">
+                    <p className={cn(
+                      "text-[12px] font-bold uppercase tracking-[0.2em] ml-1",
+                      isDarkTheme ? "text-white/30" : "text-black/60"
+                    )}>
                       Select a template
                     </p>
                     <div className="grid grid-cols-1 gap-3">
@@ -1739,9 +1742,17 @@ export default function App() {
                             handleSendRequest(selectedRoommateForRequest, template);
                             setCustomRequestMessage("");
                           }}
-                          className="text-left p-5 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/5 group"
+                          className={cn(
+                            "text-left p-5 rounded-2xl transition-all border border-transparent group",
+                            isDarkTheme
+                              ? "bg-white/5 hover:bg-white/10 hover:border-white/5"
+                              : "bg-black/5 hover:bg-black/10 hover:border-black/10"
+                          )}
                         >
-                          <p className="text-sm text-white/70 group-hover:text-white transition-colors">
+                          <p className={cn(
+                            "text-sm transition-colors",
+                            isDarkTheme ? "text-white/70 group-hover:text-white" : "text-black/70 group-hover:text-black"
+                          )}>
                             {template}
                           </p>
                         </button>
@@ -1751,10 +1762,16 @@ export default function App() {
 
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div className="w-full border-t border-white/5"></div>
+                      <div className={cn(
+                        "w-full border-t",
+                        isDarkTheme ? "border-white/5" : "border-black/10"
+                      )}></div>
                     </div>
                     <div className="relative flex justify-center text-xs uppercase tracking-widest">
-                      <span className="bg-[#111] px-4 text-white/20 font-bold">Or write your own</span>
+                      <span className={cn(
+                        "px-4 font-bold",
+                        isDarkTheme ? "bg-[#111] text-white/20" : "bg-white text-black/40"
+                      )}>Or write your own</span>
                     </div>
                   </div>
 
@@ -1763,7 +1780,12 @@ export default function App() {
                       value={customRequestMessage}
                       onChange={(e) => setCustomRequestMessage(e.target.value)}
                       placeholder="Type a custom message..."
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white/[0.08] transition-all text-sm font-medium h-24 resize-none placeholder:text-white/10"
+                      className={cn(
+                        "w-full border rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-sm font-medium h-24 resize-none",
+                        isDarkTheme
+                          ? "bg-white/5 border-white/10 focus:bg-white/[0.08] text-white placeholder:text-white/10"
+                          : "bg-black/5 border-black/10 focus:bg-black/[0.02] text-black placeholder:text-black/40"
+                      )}
                     />
                     <button
                       disabled={!customRequestMessage.trim()}
@@ -1771,7 +1793,12 @@ export default function App() {
                         handleSendRequest(selectedRoommateForRequest, customRequestMessage);
                         setCustomRequestMessage("");
                       }}
-                      className="w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-widest bg-white/10 hover:bg-indigo-500 text-white disabled:opacity-50 disabled:hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                      className={cn(
+                        "w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-widest disabled:opacity-50 transition-all flex items-center justify-center gap-2",
+                        isDarkTheme
+                          ? "bg-white/10 hover:bg-indigo-500 text-white disabled:hover:bg-white/10"
+                          : "bg-black/10 hover:bg-indigo-500 text-black hover:text-white disabled:hover:bg-black/10"
+                      )}
                     >
                       <Send className="w-4 h-4" />
                       Send Custom Message
@@ -1779,10 +1806,16 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-white/5">
+                <div className={cn(
+                  "mt-8 pt-8 border-t",
+                  isDarkTheme ? "border-white/5" : "border-black/10"
+                )}>
                    <button
                     onClick={() => setShowRequestModal(false)}
-                    className="w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all"
+                    className={cn(
+                      "w-full py-5 rounded-3xl font-bold text-sm uppercase tracking-widest transition-all",
+                      isDarkTheme ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"
+                    )}
                   >
                     Cancel
                   </button>
