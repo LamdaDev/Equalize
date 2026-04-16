@@ -115,6 +115,28 @@ export default function LandingPage({
             );
           })}
         </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.2 }}
+          className="mt-14"
+        >
+          <h2 className={`mb-4 text-2xl font-bold tracking-tight ${textClass} sm:text-3xl`}>
+            Figma Mockups
+          </h2>
+          <div className={`overflow-hidden rounded-2xl border ${borderClass}`}>
+            <iframe
+              style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}
+              width="800"
+              height="450"
+              src="https://embed.figma.com/design/mkwGQOdChOagBikKZplHgK/SOEN-357---Project?node-id=0-1&embed-host=share"
+              allowFullScreen
+              title="SOEN 357 Project Figma Mockups"
+              className="h-[450px] w-full"
+            />
+          </div>
+        </motion.section>
         </div>
       </div>
     </div>
