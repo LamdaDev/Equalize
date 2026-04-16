@@ -442,13 +442,13 @@ export default function App() {
     )}>
       {/* Top Navigation */}
       <nav className={cn(
-        "fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b px-6 py-4 flex items-center justify-between transition-colors duration-300",
+        "fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b px-4 sm:px-6 py-4 flex items-center justify-between gap-4 sm:gap-0 transition-colors duration-300",
         isDarkTheme ? "bg-[#0A0A0A]/80 border-white/5" : "bg-white/80 border-black/5"
       )}>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3 pr-2 sm:pr-0">
           <span className="text-xl font-bold tracking-tight">Equalize</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-4">
           <button
             onClick={() => setIsDarkTheme(!isDarkTheme)}
             className={cn(
@@ -763,10 +763,10 @@ export default function App() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-3 sm:gap-6 flex-shrink-0">
                           <span
                             className={cn(
-                              "text-xl font-bold tracking-tight",
+                              "text-lg sm:text-xl font-bold tracking-tight flex-shrink-0",
                               r.balance > 0
                                 ? "text-emerald-400"
                                 : "text-rose-400",
@@ -785,7 +785,7 @@ export default function App() {
                               }
                             }}
                             className={cn(
-                              "w-[100px] flex items-center justify-center text-[12px] font-bold uppercase tracking-[0.15em] px-5 py-2.5 rounded-xl transition-all active:scale-95",
+                              "w-[84px] sm:w-[100px] flex items-center justify-center text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.12em] sm:tracking-[0.15em] px-3 sm:px-5 py-2.5 rounded-xl transition-all active:scale-95 flex-shrink-0",
                               isDarkTheme ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"
                             )}
                           >
