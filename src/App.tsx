@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Plus,
@@ -134,6 +134,13 @@ export default function App() {
 
   useEffect(() => {
     localStorage.setItem("equalize_isDarkTheme", JSON.stringify(isDarkTheme));
+  }, [isDarkTheme]);
+
+  useLayoutEffect(() => {
+    const pageBackground = isDarkTheme ? "#0A0A0A" : "#ffffff";
+
+    document.documentElement.style.backgroundColor = pageBackground;
+    document.body.style.backgroundColor = pageBackground;
   }, [isDarkTheme]);
 
   useEffect(() => {
